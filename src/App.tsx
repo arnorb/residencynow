@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { Button } from "@/components/ui/button"
 import PDFViewer from './components/PDFViewer'
+import MailboxLabelsViewer from './components/MailboxLabelsViewer'
 import { Resident, Building, fetchResidents, fetchBuildings } from './services/googleSheets'
 import { sampleResidents } from './data/sampleData'
 
@@ -198,6 +199,11 @@ function App() {
           
           <PDFViewer 
             residents={residents} 
+            buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
+          />
+          
+          <MailboxLabelsViewer
+            residents={residents}
             buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
           />
         </div>
