@@ -1,6 +1,17 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { Resident, sortResidentsByName } from '../services/googleSheets';
+
+// Register Fira Sans font
+Font.register({
+  family: 'Fira Sans',
+  fonts: [
+    { src: '/src/assets/fonts/FiraSans-Regular.ttf' },
+    { src: '/src/assets/fonts/FiraSans-Bold.ttf', fontWeight: 'bold' },
+    { src: '/src/assets/fonts/FiraSans-Light.ttf', fontWeight: 'light' },
+    { src: '/src/assets/fonts/FiraSans-Medium.ttf', fontWeight: 'medium' },
+  ]
+});
 
 // Create styles
 const styles = StyleSheet.create({
@@ -8,6 +19,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#ffffff',
     padding: 30,
+    fontFamily: 'Fira Sans',
   },
   title: {
     fontSize: 24,
