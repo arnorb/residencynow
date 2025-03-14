@@ -11,28 +11,53 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 5,
     textAlign: 'center',
     fontWeight: 'bold',
   },
+  buildingName: {
+    fontSize: 18,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#555',
+  },
   subtitle: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 15,
     textAlign: 'center',
   },
-  residentList: {
-    marginTop: 20,
-  },
-  residentItem: {
+  columnsContainer: {
     flexDirection: 'row',
-    marginBottom: 5,
-    fontSize: 12,
+    width: '100%',
+    marginTop: 10,
+    justifyContent: 'space-between',
   },
-  name: {
-    flex: 3,
+  column: {
+    width: '45%',
   },
-  apartmentNumber: {
-    flex: 1,
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 6,
+    fontSize: 10,
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    borderBottomStyle: 'solid',
+  },
+  tableHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderBottomStyle: 'solid',
+    paddingBottom: 4,
+    marginBottom: 4,
+    fontWeight: 'bold',
+  },
+  nameColumn: {
+    width: '70%',
+  },
+  apartmentColumn: {
+    width: '30%',
     textAlign: 'right',
   },
   footer: {
@@ -50,30 +75,63 @@ interface ResidentListProps {
   residents: Resident[];
   title?: string;
   subtitle?: string;
+  buildingName?: string;
 }
 
 // Create Document Component
-const ResidentList: React.FC<ResidentListProps> = ({ residents, title = 'Íbúalisti', subtitle = 'Raðað í stafrófsröð' }) => {
+const ResidentList: React.FC<ResidentListProps> = ({ 
+  residents,
+  subtitle = 'Íbúar í stafrófsröð',
+  buildingName 
+}) => {
   // Sort residents alphabetically by name
   const sortedResidents = sortResidentsByName(residents);
+  
+  // Split residents into two columns
+  const midpoint = Math.ceil(sortedResidents.length / 2);
+  const leftColumnResidents = sortedResidents.slice(0, midpoint);
+  const rightColumnResidents = sortedResidents.slice(midpoint);
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{buildingName}</Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         
-        <View style={styles.residentList}>
-          {sortedResidents.map((resident, index) => (
-            <View key={index} style={styles.residentItem}>
-              <Text style={styles.name}>{resident.name}</Text>
-              <Text style={styles.apartmentNumber}>{resident.apartmentNumber}</Text>
+        <View style={styles.columnsContainer}>
+          {/* Left Column */}
+          <View style={styles.column}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={styles.nameColumn}>Nafn</Text>
+              <Text style={styles.apartmentColumn}>Íbúð</Text>
             </View>
-          ))}
+            
+            {leftColumnResidents.map((resident, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.nameColumn}>{resident.name}</Text>
+                <Text style={styles.apartmentColumn}>{resident.apartmentNumber}</Text>
+              </View>
+            ))}
+          </View>
+          
+          {/* Right Column */}
+          <View style={styles.column}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={styles.nameColumn}>Nafn</Text>
+              <Text style={styles.apartmentColumn}>Íbúð</Text>
+            </View>
+            
+            {rightColumnResidents.map((resident, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.nameColumn}>{resident.name}</Text>
+                <Text style={styles.apartmentColumn}>{resident.apartmentNumber}</Text>
+              </View>
+            ))}
+          </View>
         </View>
         
         <Text style={styles.footer}>
-          Útprentað: {new Date().toLocaleDateString('is-IS')}
+          Útprentað: {new Date().toLocaleDateString('is-IS')}. Sendið póst á arnarhlid@gmail.com fyrir breytingar.
         </Text>
       </Page>
     </Document>

@@ -5,6 +5,7 @@ A web application that generates resident lists and mailbox labels from Google S
 ## Features
 
 - Connect to Google Sheets to fetch resident data
+- Select from multiple buildings (sheets) in a single Google Spreadsheet
 - Generate alphabetically sorted resident lists on A4 paper
 - Create mailbox labels with apartment numbers and resident names
 - Export as PDF for printing
@@ -48,10 +49,12 @@ npm run dev
 
 ## Setting up Google Sheets
 
-1. Create a Google Sheet with at least two columns: `name` and `apartmentNumber`
-2. Fill in the data with resident names and their apartment numbers
-3. Make sure your Google Sheet is publicly accessible (read-only is fine)
-4. Get the spreadsheet ID from the URL (the long string between `/d/` and `/edit` in the URL)
+1. Create a Google Sheet with multiple sheets, where each sheet represents a building
+2. Each sheet should have at least two columns: `name` and `apartmentNumber`
+3. The sheet name will be displayed as the building name in the application
+4. Fill in the data with resident names and their apartment numbers for each building
+5. Make sure your Google Sheet is publicly accessible (read-only is fine)
+6. Get the spreadsheet ID from the URL (the long string between `/d/` and `/edit` in the URL)
 
 ## Setting up Google API Key
 
@@ -68,7 +71,8 @@ The application uses the following environment variables:
 
 - `VITE_GOOGLE_SHEETS_API_KEY`: Your Google API key
 - `VITE_GOOGLE_SHEETS_ID`: The ID of your Google Spreadsheet
-- `VITE_GOOGLE_SHEETS_INDEX`: The index of the sheet to use (0 for the first sheet, 1 for the second, etc.)
+
+You can set these in a `.env.local` file at the root of the project.
 
 ## Testing
 
@@ -104,13 +108,17 @@ Click the "Prófa með sýnigögnum" (Try with sample data) button to test the a
 
 ### Connecting to Google Sheets
 
-If your environment variables are set up correctly, you'll see a "Sækja gögn frá Google Sheets" (Fetch data from Google Sheets) button. Click it to load your data.
+If your environment variables are set up correctly, you'll see a "Sækja lista yfir byggingar" (Fetch list of buildings) button. Click it to load the available buildings (sheets) from your Google Spreadsheet.
+
+### Selecting a Building
+
+After fetching the list of buildings, you can select the building you want to view data for. Click on a building name to select it, then click "Sækja gögn fyrir valda byggingu" (Fetch data for selected building) to load the residents for that building.
 
 ### Generating PDFs
 
 1. Choose between "Íbúalisti" (Resident List) or "Póstkassamerki" (Mailbox Labels)
 2. Preview the PDF in the browser
-3. Click "Sækja Íbúalisti" or "Sækja Póstkassamerki" to download the PDF
+3. Click "Hlaða niður PDF" to download the PDF
 
 ## License
 

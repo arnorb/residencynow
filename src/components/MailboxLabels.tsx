@@ -5,10 +5,28 @@ import { Resident, groupResidentsByApartment } from '../services/googleSheets';
 // Create styles
 const styles = StyleSheet.create({
   page: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     backgroundColor: '#ffffff',
     padding: 10,
+  },
+  header: {
+    marginBottom: 15,
+    padding: 5,
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  buildingName: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 10,
+  },
+  labelsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   labelContainer: {
     width: '50%',
@@ -42,10 +60,11 @@ const styles = StyleSheet.create({
 
 interface MailboxLabelsProps {
   residents: Resident[];
+  buildingName?: string;
 }
 
 // Create Document Component
-const MailboxLabels: React.FC<MailboxLabelsProps> = ({ residents }) => {
+const MailboxLabels: React.FC<MailboxLabelsProps> = ({ residents, buildingName }) => {
   // Handle empty residents array
   if (!residents || residents.length === 0) {
     return (
@@ -95,18 +114,27 @@ const MailboxLabels: React.FC<MailboxLabelsProps> = ({ residents }) => {
       
       return (
         <Page key={`page-${pageIndex}`} size="A4" style={styles.page}>
-          {pageLabels.map((entry, index) => (
-            <View key={`label-${entry.apartmentNumber}-${index}`} style={styles.labelContainer}>
-              <View style={styles.label}>
-                <Text style={styles.apartmentNumber}>Íbúð {entry.apartmentNumber}</Text>
-                {entry.residents.map((resident, resIndex) => (
-                  <Text key={`resident-${entry.apartmentNumber}-${resIndex}-${resident.name}`} style={styles.residentName}>
-                    {resident.name}
-                  </Text>
-                ))}
+          {/* Header with title and building name */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Póstkassamerki</Text>
+            {buildingName && <Text style={styles.buildingName}>{buildingName}</Text>}
+          </View>
+          
+          {/* Labels container */}
+          <View style={styles.labelsContainer}>
+            {pageLabels.map((entry, index) => (
+              <View key={`label-${entry.apartmentNumber}-${index}`} style={styles.labelContainer}>
+                <View style={styles.label}>
+                  <Text style={styles.apartmentNumber}>Íbúð {entry.apartmentNumber}</Text>
+                  {entry.residents.map((resident, resIndex) => (
+                    <Text key={`resident-${entry.apartmentNumber}-${resIndex}-${resident.name}`} style={styles.residentName}>
+                      {resident.name}
+                    </Text>
+                  ))}
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
         </Page>
       );
     });

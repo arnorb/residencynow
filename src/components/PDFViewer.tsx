@@ -38,9 +38,10 @@ class PDFErrorBoundary extends React.Component<
 interface PDFViewerProps {
   residents: Resident[];
   documentType: 'residentList' | 'mailboxLabels';
+  buildingName?: string;
 }
 
-const PDFViewer: React.FC<PDFViewerProps> = ({ residents, documentType }) => {
+const PDFViewer: React.FC<PDFViewerProps> = ({ residents, documentType, buildingName }) => {
   const [renderError, setRenderError] = useState<string | null>(null);
   const [key, setKey] = useState<number>(0); // Key to force re-render
 
@@ -52,8 +53,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, documentType }) => {
 
   // Determine which document to render based on documentType
   const documentComponent = documentType === 'residentList' 
-    ? <ResidentList residents={residents} /> 
-    : <MailboxLabels residents={residents} />;
+    ? <ResidentList residents={residents} buildingName={buildingName} /> 
+    : <MailboxLabels residents={residents} buildingName={buildingName} />;
   
   // Set document name and title based on documentType
   const documentName = documentType === 'residentList' ? 'ibualisti.pdf' : 'postkassamerki.pdf';

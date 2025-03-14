@@ -5,6 +5,45 @@ export interface Resident {
   apartmentNumber: string;
 }
 
+export interface Building {
+  title: string;
+  index: number;
+  lastUpdated?: Date;
+}
+
+/**
+ * Fetches the list of available sheets (buildings) from a Google Spreadsheet
+ * 
+ * @param sheetId - The ID of the Google Spreadsheet
+ * @param apiKey - The Google API key
+ * @returns A promise that resolves to an array of Building objects
+ */
+export async function fetchBuildings(
+  sheetId: string,
+  apiKey: string
+): Promise<Building[]> {
+  try {
+    // Initialize the sheet with API key
+    const doc = new GoogleSpreadsheet(sheetId, { apiKey });
+    
+    // Load document properties and sheets
+    await doc.loadInfo();
+    
+    // Map sheets to Building objects
+    const buildings = doc.sheetsByIndex.map((sheet, index) => ({
+      title: sheet.title,
+      index,
+      // Unfortunately, the Google Sheets API doesn't provide last updated information
+      // for individual sheets through the javascript client library
+    }));
+    
+    return buildings;
+  } catch (error) {
+    console.error('Error fetching buildings:', error);
+    throw error;
+  }
+}
+
 /**
  * Fetches resident data from a Google Spreadsheet using an API key
  * 
