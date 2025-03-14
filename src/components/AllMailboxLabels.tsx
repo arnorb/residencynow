@@ -1,6 +1,19 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { Resident } from '../services/googleSheets';
-import { groupResidentsByApartment } from '../services/googleSheets';
+import { groupResidentsByApartment, sortResidentsByPriority } from '../services/googleSheets';
+
+// Register Fira Sans font
+Font.register({
+  family: 'Fira Sans',
+  src: 'https://fonts.gstatic.com/s/firasans/v16/va9E4kDNxMZdWfMOD5Vvl4jL.ttf',
+  fontWeight: 'normal',
+});
+
+Font.register({
+  family: 'Fira Sans',
+  src: 'https://fonts.gstatic.com/s/firasans/v16/va9B4kDNxMZdWfMOD5VnSKzeRhf_.ttf',
+  fontWeight: 'bold',
+});
 
 // Create styles for the mailbox labels
 const styles = StyleSheet.create({
@@ -9,13 +22,13 @@ const styles = StyleSheet.create({
     height: '5cm',
     padding: '0.5cm',
     backgroundColor: '#ffffff',
+    fontFamily: 'Fira Sans',
   },
   label: {
     width: '100%',
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    border: '1pt solid #cccccc',
     padding: '0.3cm',
   },
   apartmentNumber: {
@@ -27,6 +40,7 @@ const styles = StyleSheet.create({
   residentName: {
     fontSize: 11,
     marginBottom: '0.1cm',
+    textAlign: 'center',
   }
 });
 
@@ -46,18 +60,23 @@ const AllMailboxLabels: React.FC<AllMailboxLabelsProps> = ({ residents }) => {
 
   return (
     <Document>
-      {apartmentNumbers.map((apartmentNumber) => (
-        <Page key={apartmentNumber} size={[198, 141]} style={styles.page}>
-          <View style={styles.label}>
-            <Text style={styles.apartmentNumber}>Íbúð {apartmentNumber}</Text>
-            {groupedResidents[apartmentNumber].map((resident, index) => (
-              <Text key={index} style={styles.residentName}>
-                {resident.name}
-              </Text>
-            ))}
-          </View>
-        </Page>
-      ))}
+      {apartmentNumbers.map((apartmentNumber) => {
+        // Sort residents by priority if available
+        const sortedResidents = sortResidentsByPriority(groupedResidents[apartmentNumber]);
+        
+        return (
+          <Page key={apartmentNumber} size={[198, 141]} style={styles.page}>
+            <View style={styles.label}>
+              <Text style={styles.apartmentNumber}>Íbúð {apartmentNumber}</Text>
+              {sortedResidents.map((resident, index) => (
+                <Text key={index} style={styles.residentName}>
+                  {resident.name}
+                </Text>
+              ))}
+            </View>
+          </Page>
+        );
+      })}
     </Document>
   );
 };

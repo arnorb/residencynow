@@ -3,6 +3,7 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 export interface Resident {
   name: string;
   apartmentNumber: string;
+  priority?: number;
 }
 
 export interface Building {
@@ -71,10 +72,11 @@ export async function fetchResidents(
     const rows = await sheet.getRows();
     
     // Map rows to Resident objects
-    // Assuming the sheet has columns 'name' and 'apartmentNumber'
+    // Assuming the sheet has columns 'name', 'apartmentNumber', and 'priority'
     const residents = rows.map((row) => ({
       name: row.get('name') || '',
-      apartmentNumber: row.get('apartmentNumber') || ''
+      apartmentNumber: row.get('apartmentNumber') || '',
+      priority: row.get('priority') ? parseInt(row.get('priority')) : undefined
     }));
     
     return residents;
@@ -99,4 +101,36 @@ export function groupResidentsByApartment(residents: Resident[]): Record<string,
     groups[key].push(resident);
     return groups;
   }, {} as Record<string, Resident[]>);
+}
+
+// Sort residents by priority (lowest first)
+export function sortResidentsByPriority(residents: Resident[]): Resident[] {
+  // Create a copy to avoid mutating the original array
+  const sortedResidents = [...residents];
+  
+  // Check if any residents have priority set
+  const hasPriority = sortedResidents.some(resident => resident.priority !== undefined);
+  
+  // If no residents have priority, return the original order
+  if (!hasPriority) {
+    return sortedResidents;
+  }
+  
+  // Sort by priority (undefined values come last)
+  return sortedResidents.sort((a, b) => {
+    // If both have priority, compare them
+    if (a.priority !== undefined && b.priority !== undefined) {
+      return a.priority - b.priority;
+    }
+    // If only a has priority, a comes first
+    if (a.priority !== undefined) {
+      return -1;
+    }
+    // If only b has priority, b comes first
+    if (b.priority !== undefined) {
+      return 1;
+    }
+    // If neither has priority, maintain original order
+    return 0;
+  });
 } 

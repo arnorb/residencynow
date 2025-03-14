@@ -1,7 +1,7 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Button } from "@/components/ui/button";
 import { Resident } from '../services/googleSheets';
-import { groupResidentsByApartment } from '../services/googleSheets';
+import { groupResidentsByApartment, sortResidentsByPriority } from '../services/googleSheets';
 import AllMailboxLabels from './AllMailboxLabels';
 import MailboxLabel from './MailboxLabel';
 
@@ -68,13 +68,11 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, bu
                   {apartmentNumber}
                 </td>
                 <td className="border px-4 py-2">
-                  <ul className="list-disc pl-5 space-y-1">
-                    {groupedResidents[apartmentNumber].map((resident, index) => (
-                      <li key={index} className="text-sm">
-                        {resident.name}
-                      </li>
-                    ))}
-                  </ul>
+                  {sortResidentsByPriority(groupedResidents[apartmentNumber]).map((resident, index, array) => (
+                    <span key={index} className="text-sm">
+                      {resident.name}{index < array.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
                 </td>
                 <td className="border px-4 py-2 text-center">
                   <PDFDownloadLink
