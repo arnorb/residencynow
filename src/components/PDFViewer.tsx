@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ErrorInfo } from 'react';
 import { PDFViewer as ReactPDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import ResidentList from './ResidentList';
-import MailboxLabels from './MailboxLabels';
 import { Resident } from '../services/googleSheets';
 
 // Error boundary class component to catch errors in PDF rendering
@@ -37,28 +36,25 @@ class PDFErrorBoundary extends React.Component<
 
 interface PDFViewerProps {
   residents: Resident[];
-  documentType: 'residentList' | 'mailboxLabels';
   buildingName?: string;
 }
 
-const PDFViewer: React.FC<PDFViewerProps> = ({ residents, documentType, buildingName }) => {
+const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
   const [renderError, setRenderError] = useState<string | null>(null);
   const [key, setKey] = useState<number>(0); // Key to force re-render
 
-  // Reset error when document type changes
+  // Reset error when props change
   useEffect(() => {
     setRenderError(null);
-    setKey(prevKey => prevKey + 1); // Force re-render when document type changes
-  }, [documentType]);
+    setKey(prevKey => prevKey + 1); // Force re-render when props change
+  }, [buildingName]);
 
-  // Determine which document to render based on documentType
-  const documentComponent = documentType === 'residentList' 
-    ? <ResidentList residents={residents} buildingName={buildingName} /> 
-    : <MailboxLabels residents={residents} buildingName={buildingName} />;
+  // Create the document component
+  const documentComponent = <ResidentList residents={residents} buildingName={buildingName} />;
   
-  // Set document name and title based on documentType
-  const documentName = documentType === 'residentList' ? 'ibualisti.pdf' : 'postkassamerki.pdf';
-  const documentTitle = documentType === 'residentList' ? 'Íbúalisti' : 'Póstkassamerki';
+  // Set document name and title
+  const documentName = 'ibualisti.pdf';
+  const documentTitle = 'Íbúalisti';
 
   // Error handling function for PDF rendering
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {

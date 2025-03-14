@@ -43,10 +43,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     marginTop: 10,
+    gap: 30,
     justifyContent: 'space-between',
   },
   column: {
-    width: '45%',
+    width: 'calc(50% - 15px)',
   },
   tableRow: {
     flexDirection: 'row',

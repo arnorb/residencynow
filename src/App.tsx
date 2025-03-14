@@ -12,7 +12,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [isBuildingsLoading, setIsBuildingsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [documentType, setDocumentType] = useState<'residentList' | 'mailboxLabels'>('residentList')
   const [hasData, setHasData] = useState(false)
   const [hasBuildingSelection, setHasBuildingSelection] = useState(false)
 
@@ -90,7 +89,7 @@ function App() {
       <header className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">ResidencyNow</h1>
         <p className="text-gray-600">
-          Búðu til íbúalista og póstkassamerki frá Google Sheets
+          Búðu til íbúalista frá Google Sheets
         </p>
       </header>
 
@@ -179,9 +178,7 @@ function App() {
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-xl font-semibold">
-                {documentType === 'residentList' ? 'Íbúalisti' : 'Póstkassamerki'}
-              </h2>
+              <h2 className="text-xl font-semibold">Íbúalisti</h2>
               {buildings.length > 0 && (
                 <p className="text-sm text-gray-500">
                   {buildings.find(b => b.index === selectedBuildingIndex)?.title}
@@ -189,21 +186,7 @@ function App() {
               )}
             </div>
             
-            <div className="flex gap-4">
-              <Button
-                variant={documentType === 'residentList' ? 'default' : 'outline'}
-                onClick={() => setDocumentType('residentList')}
-              >
-                Íbúalisti
-              </Button>
-              
-              <Button
-                variant={documentType === 'mailboxLabels' ? 'default' : 'outline'}
-                onClick={() => setDocumentType('mailboxLabels')}
-              >
-                Póstkassamerki
-              </Button>
-              
+            <div>
               <Button 
                 variant="outline" 
                 onClick={() => setHasData(false)}
@@ -215,7 +198,6 @@ function App() {
           
           <PDFViewer 
             residents={residents} 
-            documentType={documentType} 
             buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
           />
         </div>
