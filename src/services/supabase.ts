@@ -211,4 +211,28 @@ export function sortResidentsByPriority(residents: Resident[]): Resident[] {
     // If neither has priority, maintain original order
     return 0;
   });
+}
+
+// Create multiple residents at once
+export async function createMultipleResidents(residents: Omit<Resident, 'id'>[]): Promise<Resident[]> {
+  if (residents.length === 0) return [];
+  
+  try {
+    const dbResidents = residents.map(mapToDbResident);
+    
+    const { data, error } = await supabase
+      .from('residents')
+      .insert(dbResidents)
+      .select();
+    
+    if (error) {
+      console.error('Error creating multiple residents:', error);
+      throw error;
+    }
+    
+    return (data || []).map(mapFromDbResident);
+  } catch (error) {
+    console.error('Error creating multiple residents:', error);
+    throw error;
+  }
 } 

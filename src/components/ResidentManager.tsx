@@ -21,13 +21,20 @@ import {
   fetchResidents, 
   createResident, 
   updateResident, 
-  deleteResident 
+  deleteResident,
+  createMultipleResidents
 } from '../services/supabase';
 
 interface ResidentManagerProps {
   buildingId: number;
   buildingName?: string;
   onResidentsChange?: () => void;
+}
+
+// Interface for multiple residents input
+interface MultipleResidentsInput {
+  apartmentNumber: string;
+  names: string;
 }
 
 const ResidentManager: React.FC<ResidentManagerProps> = ({ 
@@ -43,6 +50,13 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [currentResident, setCurrentResident] = useState<Partial<Resident>>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // State for multiple residents dialog
+  const [isMultipleDialogOpen, setIsMultipleDialogOpen] = useState(false);
+  const [multipleResidentsInput, setMultipleResidentsInput] = useState<MultipleResidentsInput>({
+    apartmentNumber: '',
+    names: ''
+  });
   
   // Load residents when building changes
   useEffect(() => {
@@ -85,10 +99,27 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     }
   };
   
+  // Handle multiple residents input changes
+  const handleMultipleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setMultipleResidentsInput({
+      ...multipleResidentsInput,
+      [name]: value
+    });
+  };
+  
   // Reset form
   const resetForm = () => {
     setCurrentResident({});
     setIsEditing(false);
+  };
+  
+  // Reset multiple residents form
+  const resetMultipleForm = () => {
+    setMultipleResidentsInput({
+      apartmentNumber: '',
+      names: ''
+    });
   };
   
   // Handle form submission
@@ -136,6 +167,61 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     }
   };
   
+  // Handle multiple residents form submission
+  const handleMultipleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const { apartmentNumber, names } = multipleResidentsInput;
+    
+    if (!apartmentNumber || !names.trim()) {
+      setError('Íbúðarnúmer og að minnsta kosti eitt nafn eru nauðsynleg');
+      return;
+    }
+    
+    // Split names by newline and filter out empty lines
+    const namesList = names
+      .split('\n')
+      .map(name => name.trim())
+      .filter(name => name.length > 0);
+    
+    if (namesList.length === 0) {
+      setError('Að minnsta kosti eitt nafn er nauðsynlegt');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Create an array of resident objects
+      const newResidents = namesList.map((name, index) => ({
+        name,
+        apartmentNumber,
+        priority: index, // Set priority based on order (first name has highest priority)
+        building_id: buildingId
+      }));
+      
+      // Create multiple residents
+      await createMultipleResidents(newResidents);
+      
+      // Reload residents and reset form
+      await loadResidents();
+      
+      // Notify parent component about the change
+      if (onResidentsChange) {
+        onResidentsChange();
+      }
+      
+      resetMultipleForm();
+      setIsMultipleDialogOpen(false);
+    } catch (err) {
+      console.error('Error saving multiple residents:', err);
+      setError('Villa kom upp við að vista íbúa. Vinsamlegast reyndu aftur.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   // Handle edit button click
   const handleEdit = (resident: Resident) => {
     setCurrentResident(resident);
@@ -174,11 +260,20 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     setIsDialogOpen(true);
   };
   
+  // Handle add multiple button click
+  const handleAddMultiple = () => {
+    resetMultipleForm();
+    setIsMultipleDialogOpen(true);
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Íbúar {buildingName && `- ${buildingName}`}</h2>
-        <Button onClick={handleAdd}>Bæta við íbúa</Button>
+        <div className="flex gap-2">
+          <Button onClick={handleAddMultiple} variant="outline">Bæta við mörgum íbúum</Button>
+          <Button onClick={handleAdd}>Bæta við íbúa</Button>
+        </div>
       </div>
       
       {error && (
@@ -235,6 +330,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
         </div>
       )}
       
+      {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -293,6 +389,66 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               </Button>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? 'Hleð...' : isEditing ? 'Vista breytingar' : 'Bæta við'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Multiple Residents Dialog */}
+      <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleMultipleSubmit}>
+            <div className="space-y-4 py-4">
+              <div className="grid w-full items-center gap-2">
+                <label htmlFor="apartmentNumber" className="text-sm font-medium">Íbúð</label>
+                <Input
+                  id="apartmentNumber"
+                  name="apartmentNumber"
+                  value={multipleResidentsInput.apartmentNumber}
+                  onChange={handleMultipleInputChange}
+                  placeholder="Númer íbúðar"
+                  required
+                />
+              </div>
+              
+              <div className="grid w-full items-center gap-2">
+                <label htmlFor="names" className="text-sm font-medium">
+                  Nöfn íbúa (eitt nafn í hverja línu)
+                </label>
+                <textarea
+                  id="names"
+                  name="names"
+                  value={multipleResidentsInput.names}
+                  onChange={handleMultipleInputChange}
+                  placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
+                  required
+                  rows={6}
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <p className="text-xs text-gray-500">
+                  Fyrsta nafn fær hæstan forgang, síðan í röð þar á eftir.
+                </p>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  resetMultipleForm();
+                  setIsMultipleDialogOpen(false);
+                }}
+              >
+                Hætta við
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Hleð...' : 'Bæta við'}
               </Button>
             </DialogFooter>
           </form>
