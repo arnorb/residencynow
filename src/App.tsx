@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
-import { Button } from "@/components/ui/button"
+import { Button } from "./components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import PDFViewer from './components/PDFViewer'
 import MailboxLabelsViewer from './components/MailboxLabelsViewer'
 import { Resident, Building, fetchResidents, fetchBuildings } from './services/googleSheets'
@@ -197,15 +198,26 @@ function App() {
             </div>
           </div>
           
-          <PDFViewer 
-            residents={residents} 
-            buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
-          />
-          
-          <MailboxLabelsViewer
-            residents={residents}
-            buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
-          />
+          <Tabs defaultValue="residents" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="residents">Íbúalisti</TabsTrigger>
+              <TabsTrigger value="mailboxes">Póstkassamerki</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="residents">
+              <PDFViewer 
+                residents={residents} 
+                buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
+              />
+            </TabsContent>
+            
+            <TabsContent value="mailboxes">
+              <MailboxLabelsViewer
+                residents={residents}
+                buildingName={buildings.find(b => b.index === selectedBuildingIndex)?.title}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       )}
 

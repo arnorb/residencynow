@@ -1,5 +1,5 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import { Resident } from '../services/googleSheets';
 import { groupResidentsByApartment, sortResidentsByPriority } from '../services/googleSheets';
 import AllMailboxLabels from './AllMailboxLabels';
@@ -32,9 +32,8 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, bu
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Póstkassamerki</h2>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-end items-center mb-4">
         <PDFDownloadLink
           document={<AllMailboxLabels residents={residents} />}
           fileName={allLabelsFilename}

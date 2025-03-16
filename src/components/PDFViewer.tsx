@@ -52,9 +52,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
   // Create the document component
   const documentComponent = <ResidentList residents={residents} buildingName={buildingName} />;
   
-  // Set document name and title
+  // Set document name
   const documentName = 'ibualisti.pdf';
-  const documentTitle = 'Íbúalisti';
 
   // Error handling function for PDF rendering
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {
@@ -64,9 +63,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">{documentTitle}</h3>
-        
+      <div className="flex justify-end items-center mb-4">
         <PDFDownloadLink 
           document={documentComponent}
           fileName={documentName}
