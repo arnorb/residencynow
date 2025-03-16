@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ErrorInfo } from 'react';
 import { PDFViewer as ReactPDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import ResidentList from './ResidentList';
-import { Resident } from '../services/googleSheets';
+import { Resident } from '../services/supabase';
 
 // Error boundary class component to catch errors in PDF rendering
 class PDFErrorBoundary extends React.Component<

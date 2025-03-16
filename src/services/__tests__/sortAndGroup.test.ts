@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { sortResidentsByName, groupResidentsByApartment } from '../googleSheets';
+import { sortResidentsByName, groupResidentsByApartment } from '../supabase';
 
 // Mock data
 const mockResidents = [
-  { name: 'Jón Jónsson', apartmentNumber: '101' },
-  { name: 'Anna Guðmundsdóttir', apartmentNumber: '101' },
-  { name: 'Guðrún Sigurðardóttir', apartmentNumber: '102' },
+  { id: 1, name: 'Jón Jónsson', apartmentNumber: '101', building_id: 1 },
+  { id: 2, name: 'Anna Guðmundsdóttir', apartmentNumber: '101', building_id: 1 },
+  { id: 3, name: 'Guðrún Sigurðardóttir', apartmentNumber: '102', building_id: 1 },
 ];
 
 describe('Resident Sorting and Grouping', () => {

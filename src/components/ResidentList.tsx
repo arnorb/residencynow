@@ -1,6 +1,11 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
-import { Resident, sortResidentsByName } from '../services/googleSheets';
+import { Resident } from '../services/supabase';
+
+// Helper function to sort residents by name
+export const sortResidentsByName = (residents: Resident[]) => {
+  return [...residents].sort((a, b) => a.name.localeCompare(b.name));
+};
 
 // Register Fira Sans font
 Font.register({

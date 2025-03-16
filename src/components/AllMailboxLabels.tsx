@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
-import { Resident } from '../services/googleSheets';
-import { groupResidentsByApartment, sortResidentsByPriority } from '../services/googleSheets';
+import { Resident } from '../services/supabase';
+import { groupResidentsByApartment, sortResidentsByPriority } from './MailboxLabelsViewer';
 
 // Register Fira Sans font
 Font.register({

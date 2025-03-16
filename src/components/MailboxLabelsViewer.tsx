@@ -1,9 +1,36 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { Button } from "../components/ui/button";
-import { Resident } from '../services/googleSheets';
-import { groupResidentsByApartment, sortResidentsByPriority } from '../services/googleSheets';
+import { Resident } from '../services/supabase';
 import AllMailboxLabels from './AllMailboxLabels';
 import MailboxLabel from './MailboxLabel';
+
+// Helper functions for grouping and sorting residents
+export const groupResidentsByApartment = (residents: Resident[]) => {
+  return residents.reduce((groups: Record<string, Resident[]>, resident) => {
+    const apartmentNumber = resident.apartmentNumber;
+    if (!groups[apartmentNumber]) {
+      groups[apartmentNumber] = [];
+    }
+    groups[apartmentNumber].push(resident);
+    return groups;
+  }, {});
+};
+
+export const sortResidentsByPriority = (residents: Resident[]) => {
+  return [...residents].sort((a, b) => {
+    // Sort by priority (higher number = higher priority)
+    // If priority is the same or undefined, sort alphabetically
+    const priorityA = a.priority || 0;
+    const priorityB = b.priority || 0;
+    
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA;
+    }
+    
+    // If priorities are equal, sort alphabetically
+    return a.name.localeCompare(b.name);
+  });
+};
 
 interface MailboxLabelsViewerProps {
   residents: Resident[];
