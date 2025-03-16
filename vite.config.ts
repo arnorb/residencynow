@@ -10,5 +10,16 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    assetsInlineLimit: 0, // Disable inlining assets to ensure fonts are properly bundled
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Group PDF-related dependencies together
+          'pdf-renderer': ['@react-pdf/renderer']
+        }
+      }
+    }
   }
 })

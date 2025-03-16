@@ -2,6 +2,12 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { Resident } from '../services/supabase';
 
+// Import font files directly
+import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
+import FiraSansBold from '../assets/fonts/FiraSans-Bold.ttf';
+import FiraSansLight from '../assets/fonts/FiraSans-Light.ttf';
+import FiraSansMedium from '../assets/fonts/FiraSans-Medium.ttf';
+
 // Helper function to sort residents by name
 export const sortResidentsByName = (residents: Resident[]) => {
   return [...residents].sort((a, b) => a.name.localeCompare(b.name));
@@ -11,10 +17,10 @@ export const sortResidentsByName = (residents: Resident[]) => {
 Font.register({
   family: 'Fira Sans',
   fonts: [
-    { src: '/src/assets/fonts/FiraSans-Regular.ttf' },
-    { src: '/src/assets/fonts/FiraSans-Bold.ttf', fontWeight: 'bold' },
-    { src: '/src/assets/fonts/FiraSans-Light.ttf', fontWeight: 'light' },
-    { src: '/src/assets/fonts/FiraSans-Medium.ttf', fontWeight: 'medium' },
+    { src: FiraSansRegular },
+    { src: FiraSansBold, fontWeight: 'bold' },
+    { src: FiraSansLight, fontWeight: 'light' },
+    { src: FiraSansMedium, fontWeight: 'medium' },
   ]
 });
 

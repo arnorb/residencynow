@@ -2,17 +2,17 @@ import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/rendere
 import { Resident } from '../services/supabase';
 import { sortResidentsByPriority } from './MailboxLabelsViewer';
 
+// Import font files directly
+import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
+import FiraSansBold from '../assets/fonts/FiraSans-Bold.ttf';
+
 // Register Fira Sans font
 Font.register({
   family: 'Fira Sans',
-  src: 'https://fonts.gstatic.com/s/firasans/v16/va9E4kDNxMZdWfMOD5Vvl4jL.ttf',
-  fontWeight: 'normal',
-});
-
-Font.register({
-  family: 'Fira Sans',
-  src: 'https://fonts.gstatic.com/s/firasans/v16/va9B4kDNxMZdWfMOD5VnSKzeRhf_.ttf',
-  fontWeight: 'bold',
+  fonts: [
+    { src: FiraSansRegular, fontWeight: 'normal' },
+    { src: FiraSansBold, fontWeight: 'bold' }
+  ]
 });
 
 // Create styles for the mailbox label
