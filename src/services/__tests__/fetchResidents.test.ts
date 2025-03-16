@@ -26,6 +26,11 @@ vi.mock('google-spreadsheet', () => {
       constructor() {
         this.sheetsByIndex = [
           {
+            // First sheet (index 0) - Instructions sheet (should be skipped)
+            getRows: vi.fn().mockResolvedValue([]),
+          },
+          {
+            // Second sheet (index 1) - Actual data
             getRows: vi.fn().mockResolvedValue(
               mockRows.map(resident => ({
                 get: (key: string) => resident[key as keyof typeof resident] || '',

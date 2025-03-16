@@ -27,7 +27,7 @@ async function testGoogleSheetsConnection() {
     });
     
     if (buildings.length === 0) {
-      console.log('No sheets found in the Google Spreadsheet.');
+      console.log('No sheets found in the Google Spreadsheet (or only the instructions sheet was found).');
       process.exit(1);
     }
     

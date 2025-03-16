@@ -30,13 +30,15 @@ export async function fetchBuildings(
     // Load document properties and sheets
     await doc.loadInfo();
     
-    // Map sheets to Building objects
-    const buildings = doc.sheetsByIndex.map((sheet, index) => ({
-      title: sheet.title,
-      index,
-      // Unfortunately, the Google Sheets API doesn't provide last updated information
-      // for individual sheets through the javascript client library
-    }));
+    // Map sheets to Building objects, skipping the first sheet (index 0) which contains instructions
+    const buildings = doc.sheetsByIndex
+      .slice(1) // Skip the first sheet
+      .map((sheet, index) => ({
+        title: sheet.title,
+        index: index + 1, // Adjust index to match the actual sheet index in the spreadsheet
+        // Unfortunately, the Google Sheets API doesn't provide last updated information
+        // for individual sheets through the javascript client library
+      }));
     
     return buildings;
   } catch (error) {
@@ -50,13 +52,13 @@ export async function fetchBuildings(
  * 
  * @param sheetId - The ID of the Google Spreadsheet
  * @param apiKey - The Google API key
- * @param sheetIndex - The index of the sheet to fetch data from (0-based)
+ * @param sheetIndex - The index of the sheet to fetch data from (1-based, since index 0 is skipped)
  * @returns A promise that resolves to an array of Resident objects
  */
 export async function fetchResidents(
   sheetId: string,
   apiKey: string,
-  sheetIndex = 0
+  sheetIndex = 1
 ): Promise<Resident[]> {
   try {
     // Initialize the sheet with API key
@@ -67,6 +69,12 @@ export async function fetchResidents(
     
     // Get the specified sheet by index
     const sheet = doc.sheetsByIndex[sheetIndex];
+    
+    // If sheet doesn't exist (might happen if the index is out of bounds)
+    if (!sheet) {
+      console.error(`Sheet with index ${sheetIndex} not found`);
+      return [];
+    }
     
     // Load all rows
     const rows = await sheet.getRows();

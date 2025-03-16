@@ -8,7 +8,7 @@ describe.skipIf(!import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || !import.meta.env.
     it('should fetch real data from Google Sheets', async () => {
       const apiKey = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY as string;
       const sheetId = import.meta.env.VITE_GOOGLE_SHEETS_ID as string;
-      const sheetIndex = Number(import.meta.env.VITE_GOOGLE_SHEETS_INDEX || 0);
+      const sheetIndex = Number(import.meta.env.VITE_GOOGLE_SHEETS_INDEX || 1);
       
       const residents = await fetchResidents(sheetId, apiKey, sheetIndex);
       

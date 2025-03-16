@@ -66,7 +66,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, bu
                 <td className="border px-4 py-2 font-medium">
                   {apartmentNumber}
                 </td>
-                <td className="border px-4 py-2">
+                <td className="border px-4 py-2 text-left">
                   {sortResidentsByPriority(groupedResidents[apartmentNumber]).map((resident, index, array) => (
                     <span key={index} className="text-sm">
                       {resident.name}{index < array.length - 1 ? ', ' : ''}
