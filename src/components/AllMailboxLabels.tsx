@@ -67,7 +67,7 @@ const AllMailboxLabels: React.FC<AllMailboxLabelsProps> = ({ residents }) => {
         return (
           <Page key={apartmentNumber} size={[198, 141]} style={styles.page}>
             <View style={styles.label}>
-              <Text style={styles.apartmentNumber}>Íbúð {apartmentNumber}</Text>
+              <Text style={styles.apartmentNumber}>{apartmentNumber}</Text>
               {sortedResidents.map((resident, index) => (
                 <Text key={index} style={styles.residentName}>
                   {resident.name}

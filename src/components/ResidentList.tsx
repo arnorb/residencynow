@@ -35,9 +35,10 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 12,
     marginBottom: 15,
     textAlign: 'center',
+    color: '#707070',
   },
   columnsContainer: {
     flexDirection: 'row',
@@ -94,7 +95,7 @@ interface ResidentListProps {
 // Create Document Component
 const ResidentList: React.FC<ResidentListProps> = ({ 
   residents,
-  subtitle = 'Íbúar í stafrófsröð',
+  subtitle = 'Veljið númer íbúðar og ýtið á bjöllutáknið',
   buildingName 
 }) => {
   // Sort residents alphabetically by name
