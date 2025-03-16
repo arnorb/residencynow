@@ -162,56 +162,7 @@ export async function deleteResident(id: number): Promise<void> {
   }
 }
 
-// Helper functions (keeping these from the original implementation)
-
-// Sort residents alphabetically by name
-export function sortResidentsByName(residents: Resident[]): Resident[] {
-  return [...residents].sort((a, b) => a.name.localeCompare(b.name, 'is'));
-}
-
-// Group residents by apartment number
-export function groupResidentsByApartment(residents: Resident[]): Record<string, Resident[]> {
-  return residents.reduce((groups, resident) => {
-    const key = resident.apartmentNumber;
-    if (!groups[key]) {
-      groups[key] = [];
-    }
-    groups[key].push(resident);
-    return groups;
-  }, {} as Record<string, Resident[]>);
-}
-
-// Sort residents by priority (lowest first)
-export function sortResidentsByPriority(residents: Resident[]): Resident[] {
-  // Create a copy to avoid mutating the original array
-  const sortedResidents = [...residents];
-  
-  // Check if any residents have priority set
-  const hasPriority = sortedResidents.some(resident => resident.priority !== undefined);
-  
-  // If no residents have priority, return the original order
-  if (!hasPriority) {
-    return sortedResidents;
-  }
-  
-  // Sort by priority (undefined values come last)
-  return sortedResidents.sort((a, b) => {
-    // If both have priority, compare them
-    if (a.priority !== undefined && b.priority !== undefined) {
-      return a.priority - b.priority;
-    }
-    // If only a has priority, a comes first
-    if (a.priority !== undefined) {
-      return -1;
-    }
-    // If only b has priority, b comes first
-    if (b.priority !== undefined) {
-      return 1;
-    }
-    // If neither has priority, maintain original order
-    return 0;
-  });
-}
+// Helper functions have been moved to src/utils/residentUtils.ts
 
 // Create multiple residents at once
 export async function createMultipleResidents(residents: Omit<Resident, 'id'>[]): Promise<Resident[]> {

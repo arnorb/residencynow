@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sortResidentsByName, groupResidentsByApartment } from '../supabase';
+import { sortResidentsByName, groupResidentsByApartment } from '../../utils/residentUtils';
 
 // Mock data
 const mockResidents = [

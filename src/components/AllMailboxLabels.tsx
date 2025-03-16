@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { Resident } from '../services/supabase';
-import { groupResidentsByApartment, sortResidentsByPriority } from './MailboxLabelsViewer';
+import { groupResidentsByApartment, sortResidentsByPriority } from '../utils/residentUtils';
 
 // Import font files directly
 import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';

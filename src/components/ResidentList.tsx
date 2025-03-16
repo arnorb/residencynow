@@ -1,17 +1,13 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
 import { Resident } from '../services/supabase';
+import { sortResidentsByName } from '../utils/residentUtils';
 
 // Import font files directly
 import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
 import FiraSansBold from '../assets/fonts/FiraSans-Bold.ttf';
 import FiraSansLight from '../assets/fonts/FiraSans-Light.ttf';
 import FiraSansMedium from '../assets/fonts/FiraSans-Medium.ttf';
-
-// Helper function to sort residents by name
-export const sortResidentsByName = (residents: Resident[]) => {
-  return [...residents].sort((a, b) => a.name.localeCompare(b.name));
-};
 
 // Register Fira Sans font
 Font.register({
@@ -156,7 +152,7 @@ const ResidentList: React.FC<ResidentListProps> = ({
         </View>
         
         <Text style={styles.footer}>
-          Útprentað: {new Date().toLocaleDateString('is-IS')}. Sendið póst á arnarhlid@gmail.com fyrir breytingar.
+          Útprentað: {new Date().toLocaleDateString('is-IS')}. Sendið póst á arnarhlid2@gmail.com fyrir breytingar.
         </Text>
       </Page>
     </Document>

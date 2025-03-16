@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
 import { 
@@ -23,13 +23,34 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [hasBuildingSelection, setHasBuildingSelection] = useState(false)
 
-  // Fetch buildings on component mount
-  useEffect(() => {
-    fetchBuildingsList();
-  }, []);
+  // Load sample data for testing
+  const loadSampleData = useCallback(() => {
+    setResidents(sampleResidents)
+  }, [])
+
+  // Fetch residents for the selected building
+  const fetchData = useCallback(async () => {
+    if (!selectedBuildingId) return
+    
+    setIsFetchingResidents(true)
+    setError(null)
+    
+    try {
+      const data = await fetchResidents(selectedBuildingId)
+      
+      setResidents(data)
+    } catch (err) {
+      console.error('Error fetching residents:', err)
+      setError('Villa kom upp við að sækja gögn. Vinsamlegast reyndu aftur.')
+      // Load sample data if there's an error
+      loadSampleData()
+    } finally {
+      setIsFetchingResidents(false)
+    }
+  }, [selectedBuildingId, setError, setIsFetchingResidents, setResidents, loadSampleData])
 
   // Fetch buildings from Supabase
-  const fetchBuildingsList = async () => {
+  const fetchBuildingsList = useCallback(async () => {
     setIsBuildingsLoading(true)
     setError(null)
     
@@ -54,48 +75,27 @@ function App() {
     } finally {
       setIsBuildingsLoading(false)
     }
-  }
+  }, [loadSampleData, setBuildings, setError, setHasBuildingSelection, setIsBuildingsLoading, setSelectedBuildingId])
 
-  // Fetch residents for the selected building
-  const fetchData = async () => {
-    if (!selectedBuildingId) return
-    
-    setIsFetchingResidents(true)
-    setError(null)
-    
-    try {
-      const data = await fetchResidents(selectedBuildingId)
-      
-      setResidents(data)
-    } catch (err) {
-      console.error('Error fetching residents:', err)
-      setError('Villa kom upp við að sækja gögn. Vinsamlegast reyndu aftur.')
-      // Load sample data if there's an error
-      loadSampleData()
-    } finally {
-      setIsFetchingResidents(false)
-    }
-  }
-
-  // Load sample data for testing
-  const loadSampleData = () => {
-    setResidents(sampleResidents)
-  }
+  // Fetch buildings on component mount
+  useEffect(() => {
+    fetchBuildingsList();
+  }, [fetchBuildingsList]);
 
   // Effect to fetch residents when building changes
   useEffect(() => {
     if (selectedBuildingId && hasBuildingSelection) {
       fetchData()
     }
-  }, [selectedBuildingId, hasBuildingSelection])
+  }, [selectedBuildingId, hasBuildingSelection, fetchData])
 
   // Get the selected building name
   const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
 
   // Callback function to refresh residents data after changes
-  const handleResidentsChange = () => {
+  const handleResidentsChange = useCallback(() => {
     fetchData()
-  }
+  }, [fetchData])
 
   // Show loading indicator while fetching initial data
   if (isBuildingsLoading) {
