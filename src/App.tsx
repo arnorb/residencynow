@@ -22,10 +22,22 @@ function App() {
   const [buildings, setBuildings] = useState<Building[]>([])
   const [selectedBuildingId, setSelectedBuildingId] = useState<number>(0)
   const [isFetchingResidents, setIsFetchingResidents] = useState(false)
-  const [isBuildingsLoading, setIsBuildingsLoading] = useState(false)
+  const [isBuildingsLoading, setIsBuildingsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasBuildingSelection, setHasBuildingSelection] = useState(false)
-  const { logout } = useAuth()
+  const { logout, user, isAuthenticated } = useAuth()
+
+  // Define logout button component
+  const LogoutButton = () => (
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={logout}
+      className="absolute top-4 right-4"
+    >
+      Útskrá
+    </Button>
+  );
 
   // Load sample data for testing
   const loadSampleData = useCallback(() => {
@@ -98,6 +110,15 @@ function App() {
     }
   }, [selectedBuildingId, hasBuildingSelection, fetchData])
 
+  // Add a useEffect to re-fetch data when authentication state changes
+  useEffect(() => {
+    // When a user becomes authenticated, refetch the buildings data
+    if (isAuthenticated && user) {
+      console.log('User authenticated, fetching buildings data');
+      fetchBuildingsList();
+    }
+  }, [isAuthenticated, user, fetchBuildingsList]);
+
   // Get the selected building name
   const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
 
@@ -106,35 +127,41 @@ function App() {
     fetchData()
   }, [fetchData])
 
-  // Show loading indicator while fetching initial data
+  // Create a loading spinner component
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-gray-200 rounded-full"></div>
+          <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
+        </div>
+        <p className="mt-4 text-lg font-medium text-gray-600">Hleð Habitera...</p>
+        <p className="text-sm text-gray-500 mt-2">Sæki byggingar</p>
+      </div>
+    </div>
+  );
+
+  // If still loading buildings, show the spinner in a protected route
   if (isBuildingsLoading) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Habitera</h1>
-          <p className="text-gray-600">
-            Íbúalisti og póstkassamerki
-          </p>
-        </header>
-        <div className="flex justify-center items-center h-64">
-          <p>Hleð gögnum...</p>
+      <ProtectedRoute>
+        <div className="container mx-auto py-8 relative">
+          <LogoutButton />
+          
+          <header className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2">Habitera</h1>
+            <p className="text-gray-600">
+              Íbúalisti og póstkassamerki
+            </p>
+          </header>
+          
+          <LoadingSpinner />
         </div>
-      </div>
+      </ProtectedRoute>
     )
   }
 
-  // Add a logout button to the UI
-  const LogoutButton = () => (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={logout}
-      className="absolute top-4 right-4"
-    >
-      Útskrá
-    </Button>
-  );
-
+  // Render the main UI once buildings are loaded
   return (
     <ProtectedRoute>
       <div className="container mx-auto py-8 relative">
@@ -163,16 +190,24 @@ function App() {
               )}
             </div>
             
-            {buildings.length > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col">
-                  <label htmlFor="building-select" className="text-sm text-gray-500 mb-1">
-                    Veldu byggingu
-                  </label>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col">
+                <label htmlFor="building-select" className="text-sm text-gray-500 mb-1">
+                  Veldu byggingu
+                </label>
+                {buildings.length > 0 ? (
                   <Select
                     value={selectedBuildingId.toString()}
                     onValueChange={(value) => {
                       const newBuildingId = parseInt(value);
+                      
+                      // Optimistic UI update - show loading indicator before actual data load
+                      setIsFetchingResidents(true);
+                      
+                      // Clear current residents to avoid showing stale data
+                      setResidents([]);
+                      
+                      // Update the building ID which will trigger the fetchData effect
                       setSelectedBuildingId(newBuildingId);
                     }}
                   >
@@ -187,14 +222,18 @@ function App() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                {isFetchingResidents && (
-                  <div className="ml-2 text-sm text-gray-500">
-                    Hleð gögnum...
+                ) : (
+                  <div className="w-[180px] h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                    Engar byggingar fundust
                   </div>
                 )}
               </div>
-            )}
+              {isFetchingResidents && (
+                <div className="ml-2 text-sm text-gray-500">
+                  Hleð gögnum...
+                </div>
+              )}
+            </div>
           </div>
           
           <Tabs defaultValue="residents" className="w-full">
