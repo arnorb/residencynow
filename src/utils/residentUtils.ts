@@ -20,13 +20,13 @@ export const groupResidentsByApartment = (residents: Resident[]): Record<string,
 // Sort residents by priority
 export const sortResidentsByPriority = (residents: Resident[]): Resident[] => {
   return [...residents].sort((a, b) => {
-    // Sort by priority (higher number = higher priority)
+    // Sort by priority (lower number = higher priority)
     // If priority is the same or undefined, sort alphabetically
-    const priorityA = a.priority || 0;
-    const priorityB = b.priority || 0;
+    const priorityA = a.priority !== undefined ? a.priority : Number.MAX_SAFE_INTEGER;
+    const priorityB = b.priority !== undefined ? b.priority : Number.MAX_SAFE_INTEGER;
     
     if (priorityA !== priorityB) {
-      return priorityB - priorityA;
+      return priorityA - priorityB;
     }
     
     // If priorities are equal, sort alphabetically
