@@ -4,13 +4,19 @@ import { Resident } from '../services/supabase';
 import AllMailboxLabels from './AllMailboxLabels';
 import MailboxLabel from './MailboxLabel';
 import { groupResidentsByApartment, sortResidentsByPriority } from '../utils/residentUtils';
+import { Loader, LoadingCard } from './ui/loader';
 
 interface MailboxLabelsViewerProps {
   residents: Resident[];
   buildingName?: string;
+  isLoading?: boolean;
 }
 
-const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, buildingName }) => {
+const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ 
+  residents, 
+  buildingName,
+  isLoading = false 
+}) => {
   // Group residents by apartment number
   const groupedResidents = groupResidentsByApartment(residents);
   
@@ -69,6 +75,27 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, bu
       </div>
     );
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="w-1/3">
+            <Loader variant="skeleton" height="h-5" />
+          </div>
+          <div className="w-32">
+            <Loader variant="skeleton" height="h-9" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <LoadingCard />
+          <LoadingCard />
+          <LoadingCard />
+        </div>
+      </div>
+    );
+  }
 
   // Empty state for when there are no residents
   if (residents.length === 0) {

@@ -16,6 +16,7 @@ import { sampleResidents } from './data/sampleData'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 import { Button } from './components/ui/button'
+import { Loader } from './components/ui/loader'
 
 function App() {
   const [residents, setResidents] = useState<Resident[]>([])
@@ -131,11 +132,7 @@ function App() {
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
-        <div className="relative">
-          <div className="w-20 h-20 border-4 border-gray-200 rounded-full"></div>
-          <div className="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
-        </div>
-        <p className="mt-4 text-lg font-medium text-gray-600">Hleð Habitera...</p>
+        <Loader size="lg" text="Hleð Habitera..." />
         <p className="text-sm text-gray-500 mt-2">Sæki byggingar</p>
       </div>
     </div>
@@ -263,6 +260,7 @@ function App() {
               <MailboxLabelsViewer
                 residents={residents}
                 buildingName={selectedBuilding?.title || "Sýnigögn"}
+                isLoading={isFetchingResidents}
               />
             </TabsContent>
             

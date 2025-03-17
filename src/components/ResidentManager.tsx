@@ -14,8 +14,9 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogFooter
-} from "../components/ui/dialog";
+  DialogFooter,
+  DialogDescription,
+} from "./ui/dialog";
 import { 
   Resident, 
   fetchResidents, 
@@ -24,6 +25,7 @@ import {
   deleteResident,
   createMultipleResidents
 } from '../services/supabase';
+import { Loader, LoadingCard } from "./ui/loader";
 
 interface ResidentManagerProps {
   buildingId: number;
@@ -320,9 +322,13 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       )}
       
       {isLoading && residents.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="inline-block w-8 h-8 border-2 border-t-blue-500 border-gray-200 rounded-full animate-spin mb-2"></div>
-          <p>Hleð...</p>
+        <div className="py-4">
+          <Loader text="Hleð..." fullWidth />
+          <div className="mt-6 space-y-3">
+            <LoadingCard />
+            <LoadingCard />
+            <LoadingCard />
+          </div>
         </div>
       ) : residents.length === 0 ? (
         <div className="text-center py-8 text-gray-500 text-sm">
@@ -382,9 +388,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg">
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg" aria-describedby="resident-form-description">
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Breyta íbúa' : 'Bæta við íbúa'}</DialogTitle>
+            <DialogDescription id="resident-form-description">
+              {isEditing ? 'Uppfærðu upplýsingar um íbúa' : 'Sláðu inn upplýsingar um nýjan íbúa'}
+            </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleSubmit}>
@@ -452,9 +461,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg">
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg" aria-describedby="multiple-residents-form-description">
           <DialogHeader>
             <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
+            <DialogDescription id="multiple-residents-form-description">
+              Settu inn upplýsingar um marga íbúa, einn íbúa í hverja línu
+            </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleMultipleSubmit}>
