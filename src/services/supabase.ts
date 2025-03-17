@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 
 // Supabase connection details from environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
@@ -11,6 +11,72 @@ if (!supabaseUrl || !supabaseKey) {
 
 // Create a single supabase client for interacting with your database
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
+
+// Authentication Functions
+export async function signIn(email: string, password: string) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      console.error('Error signing in:', error);
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error signing in:', error);
+    throw error;
+  }
+}
+
+export async function signOut() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error('Error signing out:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error signing out:', error);
+    throw error;
+  }
+}
+
+export async function getCurrentUser(): Promise<User | null> {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      console.error('Error getting current user:', error);
+      throw error;
+    }
+    
+    return user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+}
+
+export async function resetPassword(email: string) {
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) {
+      console.error('Error resetting password:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    throw error;
+  }
+}
 
 // Types
 export interface Resident {
@@ -54,6 +120,13 @@ const mapFromDbResident = (dbResident: DbResident): Resident => ({
 // Fetch all buildings
 export async function fetchBuildings(): Promise<Building[]> {
   try {
+    // First check if we have an authenticated session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.warn('No authenticated session found when fetching buildings');
+      // You could throw an error here, but we'll let it attempt the fetch anyway
+    }
+    
     const { data, error } = await supabase
       .from('buildings')
       .select('*')
@@ -61,9 +134,13 @@ export async function fetchBuildings(): Promise<Building[]> {
     
     if (error) {
       console.error('Error fetching buildings:', error);
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        console.error('Authentication error when fetching buildings - session may be invalid');
+      }
       throw error;
     }
     
+    console.log(`Successfully fetched ${data?.length || 0} buildings`);
     return data || [];
   } catch (error) {
     console.error('Error fetching buildings:', error);
@@ -74,6 +151,13 @@ export async function fetchBuildings(): Promise<Building[]> {
 // Fetch residents for a specific building
 export async function fetchResidents(buildingId: number): Promise<Resident[]> {
   try {
+    // First check if we have an authenticated session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.warn('No authenticated session found when fetching residents');
+      // You could throw an error here, but we'll let it attempt the fetch anyway
+    }
+    
     const { data, error } = await supabase
       .from('residents')
       .select('*')
@@ -82,9 +166,13 @@ export async function fetchResidents(buildingId: number): Promise<Resident[]> {
     
     if (error) {
       console.error('Error fetching residents:', error);
+      if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+        console.error('Authentication error when fetching residents - session may be invalid');
+      }
       throw error;
     }
     
+    console.log(`Successfully fetched ${data?.length || 0} residents for building ${buildingId}`);
     // Map from database format to application format
     return (data || []).map(mapFromDbResident);
   } catch (error) {

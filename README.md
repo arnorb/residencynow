@@ -1,4 +1,4 @@
-# ResidencyNow
+# Habitera
 
 A web application that generates resident lists and mailbox labels from a Supabase database.
 
