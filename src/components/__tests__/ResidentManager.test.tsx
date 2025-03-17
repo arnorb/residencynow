@@ -128,10 +128,8 @@ describe('ResidentManager - Loading States', () => {
       const dialogTitles = screen.getAllByText(/Bæta við íbúa/i);
       expect(dialogTitles.length).toBeGreaterThan(0);
       
-      // Find the specific dialog title element (typically has a 'dialog-title' data attribute or class)
-      const dialogTitle = Array.from(dialogTitles).find(element => 
-        element.tagName === 'H2' && element.getAttribute('data-slot') === 'dialog-title'
-      );
+      // We've removed data-slot attributes in our shadcn updates, so we'll check differently
+      const dialogTitle = screen.getByRole('dialog', { name: /Bæta við íbúa/i });
       expect(dialogTitle).toBeInTheDocument();
     });
     

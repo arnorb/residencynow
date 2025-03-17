@@ -16,7 +16,7 @@ describe('Tabs Component - Mobile Responsiveness', () => {
     );
     
     // Check if the TabsList has proper responsive classes
-    const tabsList = container.querySelector('[data-slot="tabs-list"]');
+    const tabsList = container.querySelector('div[role="tablist"]');
     expect(tabsList).not.toBeNull();
     
     if (tabsList) {
@@ -30,7 +30,7 @@ describe('Tabs Component - Mobile Responsiveness', () => {
     }
     
     // Check if the TabsTrigger has proper responsive classes
-    const tabsTrigger = container.querySelector('[data-slot="tabs-trigger"]');
+    const tabsTrigger = container.querySelector('button[role="tab"]');
     expect(tabsTrigger).not.toBeNull();
     
     if (tabsTrigger) {
