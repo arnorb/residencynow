@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 import { Button } from './components/ui/button'
 import { Loader } from './components/ui/loader'
+import { cn } from '@/lib/utils'
 
 function App() {
   const [residents, setResidents] = useState<Resident[]>([])
@@ -208,8 +209,19 @@ function App() {
                       setSelectedBuildingId(newBuildingId);
                     }}
                   >
-                    <SelectTrigger className="w-[180px]" id="building-select">
+                    <SelectTrigger 
+                      className={cn(
+                        "w-[180px] relative",
+                        isFetchingResidents && "text-opacity-50 pointer-events-none"
+                      )}
+                      id="building-select"
+                    >
                       <SelectValue placeholder="Veldu byggingu" />
+                      {isFetchingResidents && (
+                        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-t-primary border-gray-200 rounded-full animate-spin" />
+                        </div>
+                      )}
                     </SelectTrigger>
                     <SelectContent>
                       {buildings.map((building) => (
@@ -225,11 +237,6 @@ function App() {
                   </div>
                 )}
               </div>
-              {isFetchingResidents && (
-                <div className="ml-2 text-sm text-gray-500">
-                  Hleð gögnum...
-                </div>
-              )}
             </div>
           </div>
           
