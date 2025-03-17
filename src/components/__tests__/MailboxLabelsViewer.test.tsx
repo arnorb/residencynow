@@ -57,8 +57,8 @@ describe('MailboxLabelsViewer - Loading States', () => {
   it('should display loading state when isLoading is true', () => {
     render(<MailboxLabelsViewer residents={[]} buildingName="Test Building" isLoading={true} />);
     
-    // Check for loading skeleton elements
-    const skeletonElements = document.querySelectorAll('[data-testid="skeleton"]');
+    // Check for loading skeleton elements - Skeleton elements don't have data-testid
+    const skeletonElements = document.querySelectorAll('[class*="skeleton"]');
     expect(skeletonElements.length).toBeGreaterThan(0);
     
     // Verify that the empty state message is not shown during loading

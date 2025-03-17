@@ -1,4 +1,7 @@
 import React from 'react';
+import { Skeleton } from './skeleton';
+import { Card, CardContent } from './card';
+import { cn } from "@/lib/utils";
 
 type LoaderSize = 'sm' | 'md' | 'lg';
 type LoaderVariant = 'spinner' | 'skeleton';
@@ -11,35 +14,6 @@ interface LoaderProps {
   fullWidth?: boolean;
   height?: string;
 }
-
-interface SkeletonProps {
-  className?: string;
-  height?: string;
-  width?: string;
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
-}
-
-export const Skeleton: React.FC<SkeletonProps> = ({ 
-  className = '', 
-  height = 'h-4',
-  width = 'w-full',
-  rounded = 'md'
-}) => {
-  const roundedClass = {
-    'none': '',
-    'sm': 'rounded-sm',
-    'md': 'rounded-md',
-    'lg': 'rounded-lg',
-    'full': 'rounded-full'
-  }[rounded];
-
-  return (
-    <div
-      data-testid="skeleton"
-      className={`animate-pulse bg-gray-200 ${height} ${width} ${roundedClass} ${className}`}
-    />
-  );
-};
 
 export const Loader: React.FC<LoaderProps> = ({ 
   size = 'md', 
@@ -59,12 +33,12 @@ export const Loader: React.FC<LoaderProps> = ({
     return (
       <div 
         data-testid="skeleton-loader"
-        className={`${fullWidth ? 'w-full' : ''} ${className}`}
+        className={cn(`${fullWidth ? 'w-full' : ''}`, className)}
       >
-        <Skeleton height={height || 'h-16'} rounded="md" />
+        <Skeleton className={height || 'h-16'} />
         {text && (
           <div className="mt-2 flex justify-center">
-            <Skeleton width="w-24" height="h-4" />
+            <Skeleton className="w-24 h-4" />
           </div>
         )}
       </div>
@@ -74,9 +48,9 @@ export const Loader: React.FC<LoaderProps> = ({
   return (
     <div 
       data-testid="spinner-loader"
-      className={`flex flex-col items-center justify-center ${fullWidth ? 'w-full' : ''} ${className}`}
+      className={cn("flex flex-col items-center justify-center", fullWidth ? 'w-full' : '', className)}
     >
-      <div className={`${sizeClasses[size]} border-2 border-t-blue-500 border-gray-200 rounded-full animate-spin mb-2`} />
+      <div className={cn(sizeClasses[size], "border-2 border-t-blue-500 border-gray-200 rounded-full animate-spin mb-2")} />
       {text && <p className="text-sm text-gray-600">{text}</p>}
     </div>
   );
@@ -84,28 +58,30 @@ export const Loader: React.FC<LoaderProps> = ({
 
 export const LoadingRow: React.FC = () => (
   <div className="flex gap-4 items-center p-4 border-b">
-    <Skeleton width="w-12" height="h-12" rounded="full" />
+    <Skeleton className="w-12 h-12 rounded-full" />
     <div className="flex-1">
-      <Skeleton height="h-4" width="w-3/4" className="mb-2" />
-      <Skeleton height="h-3" width="w-1/2" />
+      <Skeleton className="h-4 w-3/4 mb-2" />
+      <Skeleton className="h-3 w-1/2" />
     </div>
-    <Skeleton width="w-20" height="h-8" rounded="md" />
+    <Skeleton className="w-20 h-8 rounded-md" />
   </div>
 );
 
 export const LoadingCard: React.FC = () => (
-  <div className="bg-white rounded-lg border mb-3 p-4 shadow-sm">
-    <div className="flex justify-between items-start">
-      <div className="flex-1">
-        <Skeleton height="h-5" width="w-1/3" className="mb-2" />
-        <Skeleton height="h-4" width="w-3/4" className="mb-1" />
-        <Skeleton height="h-4" width="w-1/2" />
+  <Card className="mb-3 hover:shadow-sm transition-all">
+    <CardContent className="p-4 pt-4">
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <Skeleton className="h-5 w-1/3 mb-2" />
+          <Skeleton className="h-4 w-3/4 mb-1" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+        <div className="ml-4">
+          <Skeleton className="w-20 h-9 rounded-md" />
+        </div>
       </div>
-      <div className="ml-4">
-        <Skeleton width="w-20" height="h-9" rounded="md" />
-      </div>
-    </div>
-  </div>
+    </CardContent>
+  </Card>
 );
 
 export default Loader; 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import { 
   Table, 
   TableBody, 
@@ -8,7 +8,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "../components/ui/table";
+} from "./ui/table";
 import { 
   Dialog, 
   DialogContent, 
@@ -26,6 +26,7 @@ import {
   createMultipleResidents
 } from '../services/supabase';
 import { Loader, LoadingCard } from "./ui/loader";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface ResidentManagerProps {
   buildingId: number;
@@ -268,123 +269,138 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     setIsMultipleDialogOpen(true);
   };
 
-  // Card view for mobile screens
+  // Card view for mobile screens - Updated with shadcn Card
   const MobileResidentCard = ({ resident }: { resident: Resident }) => (
-    <div className="bg-gray-50 p-4 rounded-lg mb-3 shadow-sm">
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <h3 className="font-medium">{resident.name}</h3>
-          <p className="text-sm text-gray-600">Íbúð: {resident.apartmentNumber}</p>
-          {resident.priority !== undefined && (
-            <p className="text-xs text-gray-500">Forgangur: {resident.priority}</p>
-          )}
+    <Card className="mb-3 transition-all hover:shadow-md">
+      <CardContent className="p-4 pt-4">
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <h3 className="font-medium">{resident.name}</h3>
+            <p className="text-sm text-gray-600">Íbúð: {resident.apartmentNumber}</p>
+            {resident.priority !== undefined && (
+              <p className="text-xs text-gray-500">Forgangur: {resident.priority}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-[80px] h-10 transition-all hover:bg-primary/10 text-sm"
+              onClick={() => handleEdit(resident)}
+            >
+              Breyta
+            </Button>
+            <Button 
+              variant="destructive" 
+              size="sm"
+              className="w-[80px] h-10 transition-all hover:bg-destructive/90 text-sm"
+              onClick={() => resident.id && handleDelete(resident.id)}
+            >
+              Eyða
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-[70px]"
-            onClick={() => handleEdit(resident)}
-          >
-            Breyta
-          </Button>
-          <Button 
-            variant="destructive" 
-            size="sm"
-            className="w-[70px]"
-            onClick={() => resident.id && handleDelete(resident.id)}
-          >
-            Eyða
-          </Button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-        <h2 className="text-xl font-semibold">Íbúar {buildingName && `- ${buildingName}`}</h2>
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <Button onClick={handleAddMultiple} variant="outline" className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0">
-            Bæta við mörgum
-          </Button>
-          <Button onClick={handleAdd} className="text-sm px-3 py-1 h-9 flex-grow sm:flex-grow-0">
-            Bæta við íbúa
-          </Button>
-        </div>
-      </div>
-      
-      {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm">
-          {error}
-        </div>
-      )}
-      
-      {isLoading && residents.length === 0 ? (
-        <div className="py-4">
-          <Loader text="Hleð..." fullWidth />
-          <div className="mt-6 space-y-3">
-            <LoadingCard />
-            <LoadingCard />
-            <LoadingCard />
+    <Card className="shadow-md">
+      <CardHeader className="px-3 sm:px-6 pt-3 sm:pt-6 pb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <CardTitle className="text-xl font-semibold">Íbúar {buildingName && `- ${buildingName}`}</CardTitle>
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Button 
+              onClick={handleAddMultiple} 
+              variant="outline" 
+              className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/10"
+            >
+              Bæta við mörgum
+            </Button>
+            <Button 
+              onClick={handleAdd} 
+              className="text-sm px-3 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/90"
+            >
+              Bæta við íbúa
+            </Button>
           </div>
         </div>
-      ) : residents.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 text-sm">
-          Engir íbúar fundust. Bættu við íbúa með því að smella á "Bæta við íbúa" hnappinn.
-        </div>
-      ) : (
-        <>
-          {/* Mobile view - card layout */}
-          <div className="block sm:hidden">
-            {residents.map((resident) => (
-              <MobileResidentCard key={resident.id} resident={resident} />
-            ))}
+      </CardHeader>
+      
+      <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6 pt-0">
+        {error && (
+          <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm">
+            {error}
           </div>
-          
-          {/* Desktop view - table layout */}
-          <div className="hidden sm:block overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nafn</TableHead>
-                  <TableHead>Íbúð</TableHead>
-                  <TableHead>Forgangur</TableHead>
-                  <TableHead className="text-right">Aðgerðir</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {residents.map((resident) => (
-                  <TableRow key={resident.id}>
-                    <TableCell>{resident.name}</TableCell>
-                    <TableCell>{resident.apartmentNumber}</TableCell>
-                    <TableCell>{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleEdit(resident)}
-                        >
-                          Breyta
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
-                          onClick={() => resident.id && handleDelete(resident.id)}
-                        >
-                          Eyða
-                        </Button>
-                      </div>
-                    </TableCell>
+        )}
+        
+        {isLoading && residents.length === 0 ? (
+          <div className="py-4">
+            <Loader text="Hleð..." fullWidth />
+            <div className="mt-6 space-y-3">
+              <LoadingCard />
+              <LoadingCard />
+              <LoadingCard />
+            </div>
+          </div>
+        ) : residents.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 text-sm">
+            Engir íbúar fundust. Bættu við íbúa með því að smella á "Bæta við íbúa" hnappinn.
+          </div>
+        ) : (
+          <>
+            {/* Mobile view - card layout */}
+            <div className="block sm:hidden">
+              {residents.map((resident) => (
+                <MobileResidentCard key={resident.id} resident={resident} />
+              ))}
+            </div>
+            
+            {/* Desktop view - table layout */}
+            <div className="hidden sm:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nafn</TableHead>
+                    <TableHead>Íbúð</TableHead>
+                    <TableHead>Forgangur</TableHead>
+                    <TableHead className="text-right">Aðgerðir</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </>
-      )}
+                </TableHeader>
+                <TableBody>
+                  {residents.map((resident) => (
+                    <TableRow key={resident.id} className="transition-colors">
+                      <TableCell>{resident.name}</TableCell>
+                      <TableCell>{resident.apartmentNumber}</TableCell>
+                      <TableCell>{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleEdit(resident)}
+                            className="transition-all hover:bg-primary/10"
+                          >
+                            Breyta
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => resident.id && handleDelete(resident.id)}
+                            className="transition-all hover:bg-destructive/90"
+                          >
+                            Eyða
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        )}
+      </CardContent>
       
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -443,14 +459,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                   resetForm();
                   setIsDialogOpen(false);
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto transition-all hover:bg-primary/10"
               >
                 Hætta við
               </Button>
               <Button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto transition-all hover:bg-primary/90"
               >
                 {isLoading ? 'Hleð...' : isEditing ? 'Vista breytingar' : 'Bæta við'}
               </Button>
@@ -511,14 +527,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                   resetMultipleForm();
                   setIsMultipleDialogOpen(false);
                 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto transition-all hover:bg-primary/10"
               >
                 Hætta við
               </Button>
               <Button 
                 type="submit" 
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto transition-all hover:bg-primary/90"
               >
                 {isLoading ? 'Hleð...' : 'Bæta við'}
               </Button>
@@ -526,7 +542,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 };
 

@@ -1,10 +1,13 @@
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { Button } from "../components/ui/button";
+import { Button } from "./ui/button";
 import { Resident } from '../services/supabase';
 import AllMailboxLabels from './AllMailboxLabels';
 import MailboxLabel from './MailboxLabel';
 import { groupResidentsByApartment, sortResidentsByPriority } from '../utils/residentUtils';
-import { Loader, LoadingCard } from './ui/loader';
+import { LoadingCard } from './ui/loader';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 interface MailboxLabelsViewerProps {
   residents: Resident[];
@@ -25,83 +28,81 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
     return parseInt(a) - parseInt(b);
   });
 
-  // Generate filename for all labels
-  const allLabelsFilename = buildingName 
-    ? `${buildingName.toLowerCase().replace(/\s+/g, '-')}-all-mailbox-labels.pdf`
-    : 'all-mailbox-labels.pdf';
-
-  // Generate filename for individual label
-  const singleLabelFilename = (apartmentNumber: string) => {
-    return buildingName 
-      ? `${buildingName.toLowerCase().replace(/\s+/g, '-')}-apt-${apartmentNumber}-label.pdf`
-      : `apt-${apartmentNumber}-label.pdf`;
-  };
+  // Create filename for single label
+  const singleLabelFilename = (apartmentNumber: string) => 
+    `postkassamerki_ibud_${apartmentNumber}${buildingName ? '_' + buildingName.toLowerCase().replace(/\s+/g, '_') : ''}.pdf`;
+  
+  // Create title for the card
+  const title = buildingName ? buildingName : 'Allar íbúðir';
 
   // Card view for mobile
   const MobileMailboxCard = ({ apartmentNumber }: { apartmentNumber: string }) => {
     const residents = groupedResidents[apartmentNumber];
     return (
-      <div className="bg-white rounded-lg border mb-3 p-4 shadow-sm">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <h3 className="font-medium text-lg mb-1">Íbúð {apartmentNumber}</h3>
-            <div className="text-sm text-gray-700 mb-2">
-              {sortResidentsByPriority(residents).map((resident, index, array) => (
-                <span key={index}>
-                  {resident.name}{index < array.length - 1 ? ', ' : ''}
-                </span>
-              ))}
+      <Card className="mb-3 transition-all hover:shadow-md">
+        <CardContent className="p-4 pt-4">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <h3 className="font-medium text-lg mb-1">Íbúð {apartmentNumber}</h3>
+              <div className="text-sm text-gray-700 mb-2">
+                {sortResidentsByPriority(residents).map((resident, index, array) => (
+                  <span key={index}>
+                    {resident.name}{index < array.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="ml-4">
+              <PDFDownloadLink
+                document={
+                  <MailboxLabel 
+                    apartmentNumber={apartmentNumber} 
+                    residents={residents} 
+                  />
+                }
+                fileName={singleLabelFilename(apartmentNumber)}
+                className="no-underline"
+              >
+                {({ loading }) => (
+                  <Button size="sm" variant="outline" disabled={loading}
+                    className="h-10 px-4 transition-all hover:bg-primary/10">
+                    {loading ? 'Hleð...' : 'Sækja'}
+                  </Button>
+                )}
+              </PDFDownloadLink>
             </div>
           </div>
-          <div className="ml-4">
-            <PDFDownloadLink
-              document={
-                <MailboxLabel 
-                  apartmentNumber={apartmentNumber} 
-                  residents={residents} 
-                />
-              }
-              fileName={singleLabelFilename(apartmentNumber)}
-              className="no-underline"
-            >
-              {({ loading }) => (
-                <Button size="sm" variant="outline" disabled={loading}>
-                  {loading ? 'Hleð...' : 'Sækja'}
-                </Button>
-              )}
-            </PDFDownloadLink>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   };
 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="w-1/3">
-            <Loader variant="skeleton" height="h-5" />
+      <Card className="shadow-md overflow-hidden">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-5 w-1/3" />
+            <Skeleton className="h-9 w-32" />
           </div>
-          <div className="w-32">
-            <Loader variant="skeleton" height="h-9" />
+        </CardHeader>
+        <CardContent className="px-0 sm:px-6">
+          <div className="space-y-3 px-4 sm:px-0">
+            <LoadingCard />
+            <LoadingCard />
+            <LoadingCard />
           </div>
-        </div>
-        <div className="space-y-3">
-          <LoadingCard />
-          <LoadingCard />
-          <LoadingCard />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   // Empty state for when there are no residents
   if (residents.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-        <div className="text-center py-8">
+      <Card className="shadow-md overflow-hidden">
+        <CardContent className="flex flex-col items-center justify-center py-10 text-center">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
             className="h-12 w-12 mx-auto text-gray-400 mb-3" 
@@ -116,91 +117,101 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" 
             />
           </svg>
-          <p className="text-lg font-medium text-gray-700 mb-1">Engir íbúar fundust</p>
-          <p className="text-sm text-gray-500">
+          <CardTitle className="text-lg font-medium text-gray-700 mb-1">Engir íbúar fundust</CardTitle>
+          <CardDescription className="text-sm text-gray-500">
             Engin póstkassamerki hægt að sýna þar sem engir íbúar eru skráðir í bygginguna.
-          </p>
-        </div>
-      </div>
+          </CardDescription>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-        <p className="text-sm text-gray-600 order-2 sm:order-1">
-          Hér getur þú skoðað og sótt póstkassamerki fyrir hverja íbúð.
-        </p>
-        <PDFDownloadLink
-          document={<AllMailboxLabels residents={residents} />}
-          fileName={allLabelsFilename}
-          className="no-underline w-full sm:w-auto order-1 sm:order-2"
-        >
-          {({ loading }) => (
-            <Button 
-              disabled={loading} 
-              className="w-full sm:w-auto text-sm h-9"
-            >
-              {loading ? 'Hleð...' : 'Sækja öll merki'}
-            </Button>
-          )}
-        </PDFDownloadLink>
-      </div>
+    <Card className="shadow-md overflow-hidden">
+      <CardHeader>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardTitle>{title}</CardTitle>
+          <PDFDownloadLink
+            document={
+              <AllMailboxLabels
+                residents={residents}
+              />
+            }
+            fileName={`postkassamerki_${buildingName ? buildingName.toLowerCase().replace(/\s+/g, '_') : 'oll'}.pdf`}
+            className="no-underline"
+          >
+            {({ loading }) => (
+              <Button disabled={loading} className="h-10 w-full sm:w-auto">
+                {loading ? 'Hleð...' : 'Sækja öll merki'}
+              </Button>
+            )}
+          </PDFDownloadLink>
+        </div>
+      </CardHeader>
       
-      {/* Mobile View */}
-      <div className="sm:hidden">
-        {apartmentNumbers.map((apartmentNumber) => (
-          <MobileMailboxCard key={apartmentNumber} apartmentNumber={apartmentNumber} />
-        ))}
-      </div>
-      
-      {/* Desktop View */}
-      <div className="hidden sm:block overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="border px-4 py-2 text-left">Íbúð</th>
-              <th className="border px-4 py-2 text-left">Íbúar</th>
-              <th className="border px-4 py-2 text-center">Sækja merki</th>
-            </tr>
-          </thead>
-          <tbody>
-            {apartmentNumbers.map((apartmentNumber) => (
-              <tr key={apartmentNumber} className="hover:bg-gray-50">
-                <td className="border px-4 py-2 font-medium">
-                  {apartmentNumber}
-                </td>
-                <td className="border px-4 py-2 text-left">
-                  {sortResidentsByPriority(groupedResidents[apartmentNumber]).map((resident, index, array) => (
-                    <span key={index} className="text-sm">
-                      {resident.name}{index < array.length - 1 ? ', ' : ''}
-                    </span>
-                  ))}
-                </td>
-                <td className="border px-4 py-2 text-center">
-                  <PDFDownloadLink
-                    document={
-                      <MailboxLabel 
-                        apartmentNumber={apartmentNumber} 
-                        residents={groupedResidents[apartmentNumber]} 
-                      />
-                    }
-                    fileName={singleLabelFilename(apartmentNumber)}
-                    className="no-underline"
-                  >
-                    {({ loading }) => (
-                      <Button size="sm" variant="outline" disabled={loading}>
-                        {loading ? 'Hleð...' : 'Sækja'}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <CardContent className="px-0 sm:px-6">
+        {/* Mobile View */}
+        <div className="sm:hidden px-4">
+          {apartmentNumbers.map((apartmentNumber) => (
+            <MobileMailboxCard key={apartmentNumber} apartmentNumber={apartmentNumber} />
+          ))}
+        </div>
+        
+        {/* Desktop View */}
+        <div className="hidden sm:block">
+          <Table className="table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-24 pl-6" style={{ whiteSpace: 'normal' }}>Íbúð</TableHead>
+                <TableHead style={{ whiteSpace: 'normal' }}>Íbúar</TableHead>
+                <TableHead className="w-28 text-center" style={{ whiteSpace: 'normal' }}>Sækja merki</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {apartmentNumbers.map((apartmentNumber) => (
+                <TableRow key={apartmentNumber} className="transition-colors hover:bg-muted/50">
+                  <TableCell className="font-medium pl-6">
+                    {apartmentNumber}
+                  </TableCell>
+                  <TableCell className="!whitespace-normal">
+                    <div className="line-clamp-2">
+                      {sortResidentsByPriority(groupedResidents[apartmentNumber]).map((resident, index, array) => (
+                        <span key={index} className="text-sm">
+                          {resident.name}{index < array.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <PDFDownloadLink
+                      document={
+                        <MailboxLabel 
+                          apartmentNumber={apartmentNumber} 
+                          residents={groupedResidents[apartmentNumber]} 
+                        />
+                      }
+                      fileName={singleLabelFilename(apartmentNumber)}
+                      className="no-underline"
+                    >
+                      {({ loading }) => (
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={loading}
+                          className="transition-all hover:bg-primary/10 w-full sm:w-auto"
+                        >
+                          {loading ? 'Hleð...' : 'Sækja'}
+                        </Button>
+                      )}
+                    </PDFDownloadLink>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
