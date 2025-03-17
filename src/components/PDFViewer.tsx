@@ -30,6 +30,51 @@ const preloadFonts = async () => {
   }
 };
 
+// Helper function to create a safe filename from a string
+const createSafeFilename = (input: string | undefined): string => {
+  // Get current date in YYYY-MM-DD format
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateString = `${year}-${month}-${day}`;
+  
+  if (!input) return `${dateString}_ibualisti.pdf`;
+  
+  // Replace Icelandic characters with safe alternatives
+  const normalizedString = input
+    .replace(/á/g, 'a')
+    .replace(/Á/g, 'A')
+    .replace(/é/g, 'e')
+    .replace(/É/g, 'E')
+    .replace(/í/g, 'i')
+    .replace(/Í/g, 'I')
+    .replace(/ó/g, 'o')
+    .replace(/Ó/g, 'O')
+    .replace(/ú/g, 'u')
+    .replace(/Ú/g, 'U')
+    .replace(/ý/g, 'y')
+    .replace(/Ý/g, 'Y')
+    .replace(/þ/g, 'th')
+    .replace(/Þ/g, 'Th')
+    .replace(/æ/g, 'ae')
+    .replace(/Æ/g, 'Ae')
+    .replace(/ö/g, 'o')
+    .replace(/Ö/g, 'O')
+    .replace(/ð/g, 'd')
+    .replace(/Ð/g, 'D');
+  
+  // Remove any other special characters and replace spaces with underscores
+  const safeString = normalizedString
+    .replace(/[^\w\s.-]/g, '')  // Remove any non-alphanumeric characters except spaces, dots, and hyphens
+    .replace(/\s+/g, '_')       // Replace spaces with underscores
+    .replace(/__+/g, '_')       // Replace multiple underscores with a single one
+    .trim();                    // Trim any leading/trailing whitespace
+  
+  // Add the date and PDF extension
+  return safeString ? `${dateString}_ibualisti_${safeString}.pdf` : `${dateString}_ibualisti.pdf`;
+};
+
 // Error boundary class component to catch errors in PDF rendering
 class PDFErrorBoundary extends React.Component<
   { children: React.ReactNode, onError: (error: Error, errorInfo: ErrorInfo) => void },
@@ -121,8 +166,8 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
   // Create the document component
   const documentComponent = <ResidentList residents={residents} buildingName={buildingName} />;
   
-  // Set document name
-  const documentName = 'ibualisti.pdf';
+  // Generate a safe filename based on the building name
+  const documentName = createSafeFilename(buildingName);
 
   // Error handling function for PDF rendering
   const handleError = (error: Error, errorInfo?: ErrorInfo) => {
@@ -142,13 +187,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
     }
   };
 
+  // Determine if the download button should be disabled
+  const isDownloadDisabled = !fontsLoaded || residents.length === 0;
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-end items-center mb-4">
         <PDFDownloadLink 
           document={documentComponent}
           fileName={documentName}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${!fontsLoaded ? 'opacity-50 pointer-events-none' : 'hover:bg-primary/90'} bg-primary text-primary-foreground h-10 px-4 py-2`}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${isDownloadDisabled ? 'opacity-50 pointer-events-none bg-gray-400' : 'hover:bg-primary/90 bg-primary'} text-primary-foreground h-10 px-4 py-2`}
           onClick={() => setRenderError(null)}
         >
           {({ loading, error }) => {
