@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { 
@@ -58,15 +58,8 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     names: ''
   });
   
-  // Load residents when building changes
-  useEffect(() => {
-    if (buildingId) {
-      loadResidents();
-    }
-  }, [buildingId, onResidentsChange]);
-  
-  // Load residents from Supabase
-  const loadResidents = async () => {
+  // Load residents from Supabase - wrapped in useCallback
+  const loadResidents = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     
@@ -79,7 +72,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [buildingId, fetchResidents, setIsLoading, setResidents, setError]);
+  
+  // Load residents when building changes
+  useEffect(() => {
+    if (buildingId) {
+      loadResidents();
+    }
+  }, [buildingId, loadResidents]);
   
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
