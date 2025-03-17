@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -8,6 +8,20 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, loading: authLoading, error: authError } = useAuth();
+
+  // Apply the background color to the body when the component mounts
+  useEffect(() => {
+    // Save the original body background
+    const originalBackground = document.body.style.background;
+    
+    // Apply gray background to the body
+    document.body.style.background = 'rgb(243, 244, 246)'; // bg-gray-100 equivalent
+    
+    // Clean up when component unmounts
+    return () => {
+      document.body.style.background = originalBackground;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +50,8 @@ const LoginPage = () => {
   const error = authError;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-[400px] bg-white p-8 rounded-lg shadow-md">
+    <div className="fixed inset-0 bg-gray-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-[400px] bg-white p-8 rounded-lg shadow-md">
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">Innskráning</h2>
           <p className="text-gray-600">Skráðu þig inn til að fá aðgang að kerfinu</p>
