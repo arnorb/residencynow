@@ -237,10 +237,19 @@ function App() {
           </div>
           
           <Tabs defaultValue="residents" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="residents">Íbúalisti</TabsTrigger>
-              <TabsTrigger value="mailboxes">Póstkassamerki</TabsTrigger>
-              <TabsTrigger value="manage">Breyta gögnum</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
+              <TabsTrigger value="residents" className="text-center">
+                <span className="hidden sm:inline">Íbúalisti</span>
+                <span className="sm:hidden">Íbúar</span>
+              </TabsTrigger>
+              <TabsTrigger value="mailboxes" className="text-center">
+                <span className="hidden sm:inline">Póstkassamerki</span>
+                <span className="sm:hidden">Merki</span>
+              </TabsTrigger>
+              <TabsTrigger value="manage" className="text-center">
+                <span className="hidden sm:inline">Breyta gögnum</span>
+                <span className="sm:hidden">Breyta</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="residents">

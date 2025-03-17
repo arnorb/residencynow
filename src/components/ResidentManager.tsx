@@ -72,7 +72,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [buildingId, fetchResidents, setIsLoading, setResidents, setError]);
+  }, [buildingId]);
   
   // Load residents when building changes
   useEffect(() => {
@@ -265,74 +265,124 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     resetMultipleForm();
     setIsMultipleDialogOpen(true);
   };
+
+  // Card view for mobile screens
+  const MobileResidentCard = ({ resident }: { resident: Resident }) => (
+    <div className="bg-gray-50 p-4 rounded-lg mb-3 shadow-sm">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="font-medium">{resident.name}</h3>
+          <p className="text-sm text-gray-600">Íbúð: {resident.apartmentNumber}</p>
+          {resident.priority !== undefined && (
+            <p className="text-xs text-gray-500">Forgangur: {resident.priority}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-[70px]"
+            onClick={() => handleEdit(resident)}
+          >
+            Breyta
+          </Button>
+          <Button 
+            variant="destructive" 
+            size="sm"
+            className="w-[70px]"
+            onClick={() => resident.id && handleDelete(resident.id)}
+          >
+            Eyða
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <h2 className="text-xl font-semibold">Íbúar {buildingName && `- ${buildingName}`}</h2>
-        <div className="flex gap-2">
-          <Button onClick={handleAddMultiple} variant="outline">Bæta við mörgum íbúum</Button>
-          <Button onClick={handleAdd}>Bæta við íbúa</Button>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <Button onClick={handleAddMultiple} variant="outline" className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0">
+            Bæta við mörgum
+          </Button>
+          <Button onClick={handleAdd} className="text-sm px-3 py-1 h-9 flex-grow sm:flex-grow-0">
+            Bæta við íbúa
+          </Button>
         </div>
       </div>
       
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded-md mb-4">
+        <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm">
           {error}
         </div>
       )}
       
       {isLoading && residents.length === 0 ? (
-        <div className="text-center py-8">Hleð...</div>
+        <div className="text-center py-8">
+          <div className="inline-block w-8 h-8 border-2 border-t-blue-500 border-gray-200 rounded-full animate-spin mb-2"></div>
+          <p>Hleð...</p>
+        </div>
       ) : residents.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 text-sm">
           Engir íbúar fundust. Bættu við íbúa með því að smella á "Bæta við íbúa" hnappinn.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nafn</TableHead>
-                <TableHead>Íbúð</TableHead>
-                <TableHead>Forgangur</TableHead>
-                <TableHead className="text-right">Aðgerðir</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {residents.map((resident) => (
-                <TableRow key={resident.id}>
-                  <TableCell>{resident.name}</TableCell>
-                  <TableCell>{resident.apartmentNumber}</TableCell>
-                  <TableCell>{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEdit(resident)}
-                      >
-                        Breyta
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => resident.id && handleDelete(resident.id)}
-                      >
-                        Eyða
-                      </Button>
-                    </div>
-                  </TableCell>
+        <>
+          {/* Mobile view - card layout */}
+          <div className="block sm:hidden">
+            {residents.map((resident) => (
+              <MobileResidentCard key={resident.id} resident={resident} />
+            ))}
+          </div>
+          
+          {/* Desktop view - table layout */}
+          <div className="hidden sm:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nafn</TableHead>
+                  <TableHead>Íbúð</TableHead>
+                  <TableHead>Forgangur</TableHead>
+                  <TableHead className="text-right">Aðgerðir</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {residents.map((resident) => (
+                  <TableRow key={resident.id}>
+                    <TableCell>{resident.name}</TableCell>
+                    <TableCell>{resident.apartmentNumber}</TableCell>
+                    <TableCell>{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleEdit(resident)}
+                        >
+                          Breyta
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => resident.id && handleDelete(resident.id)}
+                        >
+                          Eyða
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
       
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg">
           <DialogHeader>
             <DialogTitle>{isEditing ? 'Breyta íbúa' : 'Bæta við íbúa'}</DialogTitle>
           </DialogHeader>
@@ -376,7 +426,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               </div>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
               <Button 
                 type="button" 
                 variant="outline" 
@@ -384,10 +434,15 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                   resetForm();
                   setIsDialogOpen(false);
                 }}
+                className="w-full sm:w-auto"
               >
                 Hætta við
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
                 {isLoading ? 'Hleð...' : isEditing ? 'Vista breytingar' : 'Bæta við'}
               </Button>
             </DialogFooter>
@@ -397,7 +452,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg">
           <DialogHeader>
             <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
           </DialogHeader>
@@ -436,7 +491,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               </div>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
               <Button 
                 type="button" 
                 variant="outline" 
@@ -444,10 +499,15 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                   resetMultipleForm();
                   setIsMultipleDialogOpen(false);
                 }}
+                className="w-full sm:w-auto"
               >
                 Hætta við
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
                 {isLoading ? 'Hleð...' : 'Bæta við'}
               </Button>
             </DialogFooter>

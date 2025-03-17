@@ -31,27 +31,104 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({ residents, bu
       : `apt-${apartmentNumber}-label.pdf`;
   };
 
+  // Card view for mobile
+  const MobileMailboxCard = ({ apartmentNumber }: { apartmentNumber: string }) => {
+    const residents = groupedResidents[apartmentNumber];
+    return (
+      <div className="bg-white rounded-lg border mb-3 p-4 shadow-sm">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <h3 className="font-medium text-lg mb-1">Íbúð {apartmentNumber}</h3>
+            <div className="text-sm text-gray-700 mb-2">
+              {sortResidentsByPriority(residents).map((resident, index, array) => (
+                <span key={index}>
+                  {resident.name}{index < array.length - 1 ? ', ' : ''}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="ml-4">
+            <PDFDownloadLink
+              document={
+                <MailboxLabel 
+                  apartmentNumber={apartmentNumber} 
+                  residents={residents} 
+                />
+              }
+              fileName={singleLabelFilename(apartmentNumber)}
+              className="no-underline"
+            >
+              {({ loading }) => (
+                <Button size="sm" variant="outline" disabled={loading}>
+                  {loading ? 'Hleð...' : 'Sækja'}
+                </Button>
+              )}
+            </PDFDownloadLink>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Empty state for when there are no residents
+  if (residents.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+        <div className="text-center py-8">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-12 w-12 mx-auto text-gray-400 mb-3" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={1.5} 
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" 
+            />
+          </svg>
+          <p className="text-lg font-medium text-gray-700 mb-1">Engir íbúar fundust</p>
+          <p className="text-sm text-gray-500">
+            Engin póstkassamerki hægt að sýna þar sem engir íbúar eru skráðir í bygginguna.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-end items-center mb-4">
+    <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+        <p className="text-sm text-gray-600 order-2 sm:order-1">
+          Hér getur þú skoðað og sótt póstkassamerki fyrir hverja íbúð.
+        </p>
         <PDFDownloadLink
           document={<AllMailboxLabels residents={residents} />}
           fileName={allLabelsFilename}
-          className="no-underline"
+          className="no-underline w-full sm:w-auto order-1 sm:order-2"
         >
           {({ loading }) => (
-            <Button disabled={loading}>
+            <Button 
+              disabled={loading} 
+              className="w-full sm:w-auto text-sm h-9"
+            >
               {loading ? 'Hleð...' : 'Sækja öll merki'}
             </Button>
           )}
         </PDFDownloadLink>
       </div>
       
-      <p className="text-sm text-gray-600 mb-4">
-        Hér getur þú skoðað og sótt póstkassamerki fyrir hverja íbúð.
-      </p>
+      {/* Mobile View */}
+      <div className="sm:hidden">
+        {apartmentNumbers.map((apartmentNumber) => (
+          <MobileMailboxCard key={apartmentNumber} apartmentNumber={apartmentNumber} />
+        ))}
+      </div>
       
-      <div className="overflow-x-auto">
+      {/* Desktop View */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-50">
