@@ -16,7 +16,6 @@ import { sampleResidents } from './data/sampleData'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 import { Button } from './components/ui/button'
-import { Loader } from './components/ui/loader'
 import { cn } from '@/lib/utils'
 
 function App() {
@@ -129,37 +128,7 @@ function App() {
     fetchData()
   }, [fetchData])
 
-  // Create a loading spinner component
-  const LoadingSpinner = () => (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center">
-        <Loader size="lg" text="Hleð Habitera..." />
-        <p className="text-sm text-gray-500 mt-2">Sæki byggingar</p>
-      </div>
-    </div>
-  );
-
-  // If still loading buildings, show the spinner in a protected route
-  if (isBuildingsLoading) {
-    return (
-      <ProtectedRoute>
-        <div className="container mx-auto py-8 relative">
-          <LogoutButton />
-          
-          <header className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Habitera</h1>
-            <p className="text-gray-600">
-              Íbúalisti og póstkassamerki
-            </p>
-          </header>
-          
-          <LoadingSpinner />
-        </div>
-      </ProtectedRoute>
-    )
-  }
-
-  // Render the main UI once buildings are loaded
+  // Render the main UI (whether or not buildings are loaded)
   return (
     <ProtectedRoute>
       <div className="container mx-auto py-8 relative">
@@ -173,112 +142,131 @@ function App() {
         </header>
 
         <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">Íbúalisti</h2>
-              {selectedBuilding && (
-                <p className="text-sm text-gray-500">
-                  {selectedBuilding.title}
-                </p>
-              )}
-              {!selectedBuilding && (
-                <p className="text-sm text-gray-500">
-                  Sýnigögn
-                </p>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col">
-                <label htmlFor="building-select" className="text-sm text-gray-500 mb-1">
-                  Veldu byggingu
-                </label>
-                {buildings.length > 0 ? (
-                  <Select
-                    value={selectedBuildingId.toString()}
-                    onValueChange={(value) => {
-                      const newBuildingId = parseInt(value);
-                      
-                      // Optimistic UI update - show loading indicator before actual data load
-                      setIsFetchingResidents(true);
-                      
-                      // Clear current residents to avoid showing stale data
-                      setResidents([]);
-                      
-                      // Update the building ID which will trigger the fetchData effect
-                      setSelectedBuildingId(newBuildingId);
-                    }}
-                  >
-                    <SelectTrigger 
-                      className={cn(
-                        "w-[180px] relative",
-                        isFetchingResidents && "text-opacity-50 pointer-events-none"
-                      )}
-                      id="building-select"
-                    >
-                      <SelectValue placeholder="Veldu byggingu" />
-                      {isFetchingResidents && (
-                        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                          <div className="w-4 h-4 border-2 border-t-primary border-gray-200 rounded-full animate-spin" />
-                        </div>
-                      )}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {buildings.map((building) => (
-                        <SelectItem key={building.id} value={building.id.toString()}>
-                          {building.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <div className="w-[180px] h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
-                    Engar byggingar fundust
-                  </div>
-                )}
+          {isBuildingsLoading ? (
+            // Show a placeholder while buildings are loading
+            <div className="animate-pulse">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-24"></div>
+                </div>
+                <div className="w-[180px] h-10 bg-gray-200 rounded-md"></div>
               </div>
+              
+              <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
+              <div className="h-64 bg-gray-200 rounded w-full"></div>
             </div>
-          </div>
-          
-          <Tabs defaultValue="residents" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
-              <TabsTrigger value="residents" className="text-center">
-                <span className="hidden sm:inline">Íbúalisti</span>
-                <span className="sm:hidden">Íbúar</span>
-              </TabsTrigger>
-              <TabsTrigger value="mailboxes" className="text-center">
-                <span className="hidden sm:inline">Póstkassamerki</span>
-                <span className="sm:hidden">Merki</span>
-              </TabsTrigger>
-              <TabsTrigger value="manage" className="text-center">
-                <span className="hidden sm:inline">Breyta gögnum</span>
-                <span className="sm:hidden">Breyta</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="residents">
-              <PDFViewer 
-                residents={residents} 
-                buildingName={selectedBuilding?.title || "Sýnigögn"}
-              />
-            </TabsContent>
-            
-            <TabsContent value="mailboxes">
-              <MailboxLabelsViewer
-                residents={residents}
-                buildingName={selectedBuilding?.title || "Sýnigögn"}
-                isLoading={isFetchingResidents}
-              />
-            </TabsContent>
-            
-            <TabsContent value="manage">
-              <ResidentManager
-                buildingId={selectedBuildingId}
-                buildingName={selectedBuilding?.title || "Sýnigögn"}
-                onResidentsChange={handleResidentsChange}
-              />
-            </TabsContent>
-          </Tabs>
+          ) : (
+            // Show actual content once buildings are loaded
+            <>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-xl font-semibold">Íbúalisti</h2>
+                  {selectedBuilding && (
+                    <p className="text-sm text-gray-500">
+                      {selectedBuilding.title}
+                    </p>
+                  )}
+                  {!selectedBuilding && (
+                    <p className="text-sm text-gray-500">
+                      Sýnigögn
+                    </p>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-col">
+                    <label htmlFor="building-select" className="text-sm text-gray-500 mb-1">
+                      Veldu byggingu
+                    </label>
+                    {buildings.length > 0 ? (
+                      <Select
+                        value={selectedBuildingId.toString()}
+                        onValueChange={(value) => {
+                          const newBuildingId = parseInt(value);
+                          
+                          // Optimistic UI update - show loading indicator before actual data load
+                          setIsFetchingResidents(true);
+                          
+                          // Clear current residents to avoid showing stale data
+                          setResidents([]);
+                          
+                          // Update the building ID which will trigger the fetchData effect
+                          setSelectedBuildingId(newBuildingId);
+                        }}
+                      >
+                        <SelectTrigger 
+                          className={cn(
+                            "w-[180px] relative",
+                            isFetchingResidents && "text-opacity-50 pointer-events-none"
+                          )}
+                          id="building-select"
+                        >
+                          <SelectValue placeholder="Veldu byggingu" />
+                          {isFetchingResidents && (
+                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                              <div className="w-4 h-4 border-2 border-t-primary border-gray-200 rounded-full animate-spin" />
+                            </div>
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {buildings.map((building) => (
+                            <SelectItem key={building.id} value={building.id.toString()}>
+                              {building.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="w-[180px] h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                        Engar byggingar fundust
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <Tabs defaultValue="residents" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
+                  <TabsTrigger value="residents" className="text-center">
+                    <span className="hidden sm:inline">Íbúalisti</span>
+                    <span className="sm:hidden">Íbúar</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="mailboxes" className="text-center">
+                    <span className="hidden sm:inline">Póstkassamerki</span>
+                    <span className="sm:hidden">Merki</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="manage" className="text-center">
+                    <span className="hidden sm:inline">Breyta gögnum</span>
+                    <span className="sm:hidden">Breyta</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="residents">
+                  <PDFViewer 
+                    residents={residents} 
+                    buildingName={selectedBuilding?.title || "Sýnigögn"}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="mailboxes">
+                  <MailboxLabelsViewer
+                    residents={residents}
+                    buildingName={selectedBuilding?.title || "Sýnigögn"}
+                    isLoading={isFetchingResidents}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="manage">
+                  <ResidentManager
+                    buildingId={selectedBuildingId}
+                    buildingName={selectedBuilding?.title || "Sýnigögn"}
+                    onResidentsChange={handleResidentsChange}
+                  />
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
         </div>
 
         {error && (
