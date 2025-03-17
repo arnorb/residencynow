@@ -1,13 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import { getCurrentUser, signIn, signOut, supabase } from '../services/supabase';
+import { getCurrentUser, signOut, supabase } from '../services/supabase';
 
 // Define the context shape
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User | null>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   error: null,
-  login: async () => {},
+  login: async () => null,
   logout: async () => {},
   isAuthenticated: false,
 });
@@ -70,15 +70,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
       
-      const { user: authUser } = await signIn(email, password);
-      setUser(authUser);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
       
-      if (!authUser) {
+      if (signInError) {
+        throw signInError;
+      }
+      
+      if (!data || !data.user) {
         throw new Error('Failed to sign in - no user returned');
       }
       
-      console.log("Successfully logged in as:", authUser?.email);
+      // Set the user explicitly from the response
+      setUser(data.user);
+      console.log("Successfully logged in as:", data.user.email);
       
+      // Force a session refresh to ensure we have the latest state
+      await supabase.auth.refreshSession();
+      
+      return data.user;
     } catch (err: unknown) {
       console.error('Login error:', err);
       // Type guard for error with message property
@@ -87,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setError('Failed to login');
       }
+      return null;
     } finally {
       setLoading(false);
     }
