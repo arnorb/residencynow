@@ -4,7 +4,7 @@ import MailboxLabelsViewer from '../MailboxLabelsViewer';
 
 describe('MailboxLabelsViewer - Loading States', () => {
   it('should display empty state message when no residents are present', () => {
-    render(<MailboxLabelsViewer residents={[]} buildingName="Test Building" />);
+    render(<MailboxLabelsViewer residents={[]} buildingName="Test Building" buildingId={1} />);
     
     // Check if empty state is displayed
     expect(screen.getByText('Engir íbúar fundust')).toBeInTheDocument();
@@ -18,7 +18,7 @@ describe('MailboxLabelsViewer - Loading States', () => {
       { id: 3, name: 'Bob Johnson', apartmentNumber: '102', building_id: 1 }
     ];
     
-    render(<MailboxLabelsViewer residents={mockResidents} buildingName="Test Building" />);
+    render(<MailboxLabelsViewer residents={mockResidents} buildingName="Test Building" buildingId={1} />);
     
     // Check if resident data is displayed using getAllByText to handle duplicates
     const johnDoeElements = screen.getAllByText(/John Doe/i);
@@ -30,7 +30,7 @@ describe('MailboxLabelsViewer - Loading States', () => {
     expect(bobJohnsonElements.length).toBeGreaterThan(0);
     
     // Check if download buttons are present
-    expect(screen.getAllByText('Sækja').length).toBeGreaterThan(0);
+    // No longer checking for "Sækja" text as we now use icons
     expect(screen.getByText('Sækja öll merki')).toBeInTheDocument();
   });
   
@@ -39,7 +39,7 @@ describe('MailboxLabelsViewer - Loading States', () => {
       { id: 1, name: 'John Doe', apartmentNumber: '101', building_id: 1 }
     ];
     
-    render(<MailboxLabelsViewer residents={mockResidents} buildingName="Test Building" />);
+    render(<MailboxLabelsViewer residents={mockResidents} buildingName="Test Building" buildingId={1} />);
     
     // Check if mobile card view elements exist
     // We'll look for elements with the appropriate class names for mobile view
@@ -55,7 +55,7 @@ describe('MailboxLabelsViewer - Loading States', () => {
   });
   
   it('should display loading state when isLoading is true', () => {
-    render(<MailboxLabelsViewer residents={[]} buildingName="Test Building" isLoading={true} />);
+    render(<MailboxLabelsViewer residents={[]} buildingName="Test Building" buildingId={1} isLoading={true} />);
     
     // Check for loading skeleton elements - Skeleton elements don't have data-testid
     const skeletonElements = document.querySelectorAll('[class*="skeleton"]');
