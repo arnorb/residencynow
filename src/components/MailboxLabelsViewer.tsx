@@ -43,8 +43,8 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
         <CardContent className="p-4 pt-4">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h3 className="font-medium text-lg mb-1">Íbúð {apartmentNumber}</h3>
-              <div className="text-sm text-gray-700 mb-2">
+              <h3 className="font-semibold text-lg px-3 py-1 bg-gray-100 inline-block rounded mb-2">Íbúð {apartmentNumber}</h3>
+              <div className="text-sm text-gray-700 mb-2 text-left">
                 {sortResidentsByPriority(residents).map((resident, index, array) => (
                   <span key={index}>
                     {resident.name}{index < array.length - 1 ? ', ' : ''}
@@ -162,18 +162,18 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
           <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-24 pl-6" style={{ whiteSpace: 'normal' }}>Íbúð</TableHead>
-                <TableHead style={{ whiteSpace: 'normal' }}>Íbúar</TableHead>
+                <TableHead className="w-24 text-center pl-6" style={{ whiteSpace: 'normal' }}>Íbúð</TableHead>
+                <TableHead className="text-left" style={{ whiteSpace: 'normal' }}>Íbúar</TableHead>
                 <TableHead className="w-28 text-center" style={{ whiteSpace: 'normal' }}>Sækja merki</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {apartmentNumbers.map((apartmentNumber) => (
                 <TableRow key={apartmentNumber} className="transition-colors hover:bg-muted/50">
-                  <TableCell className="font-medium pl-6">
+                  <TableCell className="font-medium text-center pl-6">
                     {apartmentNumber}
                   </TableCell>
-                  <TableCell className="!whitespace-normal">
+                  <TableCell className="!whitespace-normal text-left">
                     <div className="line-clamp-2">
                       {sortResidentsByPriority(groupedResidents[apartmentNumber]).map((resident, index, array) => (
                         <span key={index} className="text-sm">

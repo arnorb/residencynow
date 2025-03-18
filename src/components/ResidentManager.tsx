@@ -275,11 +275,13 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       <CardContent className="p-4 pt-4">
         <div className="flex justify-between items-start mb-2">
           <div>
-            <h3 className="font-medium">{resident.name}</h3>
-            <p className="text-sm text-gray-600">Íbúð: {resident.apartmentNumber}</p>
-            {resident.priority !== undefined && (
-              <p className="text-xs text-gray-500">Forgangur: {resident.priority}</p>
-            )}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-semibold text-sm bg-gray-100 px-2 py-1 rounded">Íbúð: {resident.apartmentNumber}</span>
+              {resident.priority !== undefined && (
+                <span className="text-xs text-gray-500">Forgangur: {resident.priority}</span>
+              )}
+            </div>
+            <h3 className="font-medium text-left">{resident.name}</h3>
           </div>
           <div className="flex flex-col gap-2">
             <Button 
@@ -361,20 +363,20 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nafn</TableHead>
-                    <TableHead>Íbúð</TableHead>
-                    <TableHead>Forgangur</TableHead>
-                    <TableHead className="text-right">Aðgerðir</TableHead>
+                    <TableHead className="w-24 text-center">Íbúð</TableHead>
+                    <TableHead className="text-left">Nafn</TableHead>
+                    <TableHead className="w-24 text-center">Forgangur</TableHead>
+                    <TableHead className="w-[160px] text-center">Aðgerðir</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {residents.map((resident) => (
                     <TableRow key={resident.id} className="transition-colors">
-                      <TableCell>{resident.name}</TableCell>
-                      <TableCell>{resident.apartmentNumber}</TableCell>
-                      <TableCell>{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                      <TableCell className="text-center">{resident.apartmentNumber}</TableCell>
+                      <TableCell className="text-left">{resident.name}</TableCell>
+                      <TableCell className="text-center">{resident.priority !== undefined ? resident.priority : '-'}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
