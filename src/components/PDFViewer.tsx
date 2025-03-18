@@ -2,6 +2,7 @@ import React, { useState, useEffect, ErrorInfo } from 'react';
 import { PDFViewer as ReactPDFViewer, PDFDownloadLink, Font } from '@react-pdf/renderer';
 import ResidentList from './ResidentList';
 import { Resident } from '../services/supabase';
+import { Button } from "./ui/button";
 
 // Import font files directly to ensure they're bundled
 import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
@@ -111,6 +112,24 @@ interface PDFViewerProps {
   buildingName?: string;
 }
 
+// Download icon component
+const DownloadIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    strokeWidth={1.5} 
+    stroke="currentColor" 
+    className={className}
+  >
+    <path 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" 
+    />
+  </svg>
+);
+
 const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
   const [renderError, setRenderError] = useState<string | null>(null);
   const [key, setKey] = useState<number>(0); // Key to force re-render
@@ -196,12 +215,31 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
         <PDFDownloadLink 
           document={documentComponent}
           fileName={documentName}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${isDownloadDisabled ? 'opacity-50 pointer-events-none bg-gray-400' : 'hover:bg-primary/90 bg-primary'} text-primary-foreground h-10 px-4 py-2`}
+          className="no-underline"
           onClick={() => setRenderError(null)}
         >
           {({ loading, error }) => {
             if (error) handleError(error);
-            return loading ? 'Hleð...' : error ? 'Villa kom upp' : 'Hlaða niður PDF';
+            return (
+              <Button 
+                disabled={isDownloadDisabled || loading} 
+                className="h-10 w-full sm:w-auto"
+              >
+                {loading ? (
+                  <span className="flex items-center">
+                    <span className="animate-pulse mr-2">...</span>
+                    Hleð...
+                  </span>
+                ) : error ? (
+                  'Villa kom upp'
+                ) : (
+                  <span className="flex items-center">
+                    <DownloadIcon className="mr-2" />
+                    Hlaða niður PDF
+                  </span>
+                )}
+              </Button>
+            );
           }}
         </PDFDownloadLink>
       </div>
