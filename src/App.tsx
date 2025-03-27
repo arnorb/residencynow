@@ -21,7 +21,11 @@ import { cn } from '@/lib/utils'
 function App() {
   const [residents, setResidents] = useState<Resident[]>([])
   const [buildings, setBuildings] = useState<Building[]>([])
-  const [selectedBuildingId, setSelectedBuildingId] = useState<number>(0)
+  const [selectedBuildingId, setSelectedBuildingId] = useState<number>(() => {
+    // Try to get the last selected building from localStorage
+    const savedBuildingId = localStorage.getItem('lastSelectedBuilding');
+    return savedBuildingId ? parseInt(savedBuildingId) : 0;
+  });
   const [isFetchingResidents, setIsFetchingResidents] = useState(false)
   const [isBuildingsLoading, setIsBuildingsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -80,8 +84,10 @@ function App() {
         setBuildings(data)
         setHasBuildingSelection(true)
         
-        // Set default selected building to the first one
-        setSelectedBuildingId(data[0].id)
+        // Only set default building if no building is selected
+        if (!selectedBuildingId) {
+          setSelectedBuildingId(data[0].id)
+        }
       } else {
         console.warn('No buildings found or empty response');
         // If no buildings found, load sample data
@@ -97,7 +103,14 @@ function App() {
     } finally {
       setIsBuildingsLoading(false)
     }
-  }, [loadSampleData, setBuildings, setError, setHasBuildingSelection, setIsBuildingsLoading, setSelectedBuildingId])
+  }, [loadSampleData, setBuildings, setError, setHasBuildingSelection, setIsBuildingsLoading, setSelectedBuildingId, selectedBuildingId])
+
+  // Save selected building to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedBuildingId) {
+      localStorage.setItem('lastSelectedBuilding', selectedBuildingId.toString());
+    }
+  }, [selectedBuildingId]);
 
   // Fetch buildings on component mount
   useEffect(() => {

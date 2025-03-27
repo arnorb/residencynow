@@ -423,12 +423,12 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
           setIsDialogOpen(open);
         }}
       >
-        <DialogContent className="sm:max-w-[550px] z-50 bg-white">
+        <DialogContent className="sm:max-w-[550px] z-50 bg-white" aria-describedby="sort-dialog-description">
           {selectedApartment && (
             <>
               <DialogHeader>
                 <DialogTitle>Röðun íbúa í íbúð {selectedApartment}</DialogTitle>
-                <DialogDescription>
+                <DialogDescription id="sort-dialog-description">
                   Dragðu nöfn til að raða - nöfn efst á lista birtast fyrst á póstkassamerki
                 </DialogDescription>
               </DialogHeader>
