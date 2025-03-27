@@ -540,20 +540,20 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-full h-full sm:h-auto sm:rounded-lg sm:max-h-[90vh] flex flex-col p-0 fixed inset-0 sm:relative sm:inset-auto" aria-describedby="multiple-residents-form-description">
-          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b sticky top-0 bg-background z-10">
-            <DialogTitle>Bæta við íbúum</DialogTitle>
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg h-[90vh] flex flex-col p-0" aria-describedby="multiple-residents-form-description">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 z-10">
+            <DialogTitle>Bæta við  íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
               Settu inn upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleMultipleSubmit} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6">
-              <div className="space-y-4 py-4">
+          <form onSubmit={handleMultipleSubmit} className="flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 min-h-0">
+              <div className="space-y-6 py-4">
                 {multipleResidentsInput.apartments.map((apartment, index) => (
-                  <div key={index} className="space-y-3 p-3 sm:p-4 border rounded-lg relative">
-                    <div className="flex justify-between items-center">
+                  <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                    <div className="flex justify-between items-center mb-2">
                       <h3 className="font-medium">Íbúð {index + 1}</h3>
                       {multipleResidentsInput.apartments.length > 1 && (
                         <Button
@@ -568,7 +568,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                       )}
                     </div>
                     
-                    <div className="grid w-full items-center gap-1.5">
+                    <div className="grid w-full items-center gap-2">
                       <label htmlFor={`apartmentNumber-${index}`} className="text-sm font-medium">Íbúð</label>
                       <Input
                         id={`apartmentNumber-${index}`}
@@ -576,11 +576,10 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                         onChange={(e) => handleMultipleInputChange(index, 'apartmentNumber', e.target.value)}
                         placeholder="Númer íbúðar"
                         required
-                        spellCheck="false"
                       />
                     </div>
                     
-                    <div className="grid w-full items-center gap-1.5">
+                    <div className="grid w-full items-center gap-2">
                       <label htmlFor={`names-${index}`} className="text-sm font-medium">
                         Nöfn íbúa (eitt nafn í hverja línu)
                       </label>
@@ -590,9 +589,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                         onChange={(e) => handleMultipleInputChange(index, 'names', e.target.value)}
                         placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
                         required
-                        rows={3}
-                        spellCheck="true"
-                        lang="is"
+                        rows={4}
                         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                       <p className="text-xs text-gray-500">
@@ -614,7 +611,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               </div>
             </div>
             
-            <DialogFooter className="flex-col sm:flex-row gap-2 p-4 sm:p-6 border-t mt-auto">
+            <DialogFooter className="flex-col sm:flex-row gap-2 p-6 border-t mt-auto">
               <Button 
                 type="button" 
                 variant="outline" 
