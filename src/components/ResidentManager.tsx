@@ -35,9 +35,13 @@ interface ResidentManagerProps {
 }
 
 // Interface for multiple residents input
-interface MultipleResidentsInput {
+interface ApartmentResidents {
   apartmentNumber: string;
   names: string;
+}
+
+interface MultipleResidentsInput {
+  apartments: ApartmentResidents[];
 }
 
 // Edit icon component
@@ -76,6 +80,24 @@ const TrashIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
   </svg>
 );
 
+// Plus icon component
+const PlusIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    strokeWidth={1.5} 
+    stroke="currentColor" 
+    className={className}
+  >
+    <path 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      d="M12 4.5v15m7.5-7.5h-15" 
+    />
+  </svg>
+);
+
 const ResidentManager: React.FC<ResidentManagerProps> = ({ 
   buildingId, 
   buildingName,
@@ -93,8 +115,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   // State for multiple residents dialog
   const [isMultipleDialogOpen, setIsMultipleDialogOpen] = useState(false);
   const [multipleResidentsInput, setMultipleResidentsInput] = useState<MultipleResidentsInput>({
-    apartmentNumber: '',
-    names: ''
+    apartments: [{ apartmentNumber: '', names: '' }]
   });
   
   // Load residents from Supabase - wrapped in useCallback
@@ -139,11 +160,15 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   };
   
   // Handle multiple residents input changes
-  const handleMultipleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleMultipleInputChange = (index: number, field: keyof ApartmentResidents, value: string) => {
+    const newApartments = [...multipleResidentsInput.apartments];
+    newApartments[index] = {
+      ...newApartments[index],
+      [field]: value
+    };
     setMultipleResidentsInput({
       ...multipleResidentsInput,
-      [name]: value
+      apartments: newApartments
     });
   };
   
@@ -156,8 +181,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   // Reset multiple residents form
   const resetMultipleForm = () => {
     setMultipleResidentsInput({
-      apartmentNumber: '',
-      names: ''
+      apartments: [{ apartmentNumber: '', names: '' }]
     });
   };
   
@@ -206,25 +230,36 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     }
   };
   
+  // Add new apartment input
+  const handleAddApartment = () => {
+    setMultipleResidentsInput({
+      ...multipleResidentsInput,
+      apartments: [...multipleResidentsInput.apartments, { apartmentNumber: '', names: '' }]
+    });
+  };
+  
+  // Remove apartment input
+  const handleRemoveApartment = (index: number) => {
+    if (multipleResidentsInput.apartments.length > 1) {
+      const newApartments = multipleResidentsInput.apartments.filter((_, i) => i !== index);
+      setMultipleResidentsInput({
+        ...multipleResidentsInput,
+        apartments: newApartments
+      });
+    }
+  };
+  
   // Handle multiple residents form submission
   const handleMultipleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const { apartmentNumber, names } = multipleResidentsInput;
+    // Validate all apartments have required fields
+    const hasInvalidApartments = multipleResidentsInput.apartments.some(
+      apartment => !apartment.apartmentNumber || !apartment.names.trim()
+    );
     
-    if (!apartmentNumber || !names.trim()) {
-      setError('Íbúðarnúmer og að minnsta kosti eitt nafn eru nauðsynleg');
-      return;
-    }
-    
-    // Split names by newline and filter out empty lines
-    const namesList = names
-      .split('\n')
-      .map(name => name.trim())
-      .filter(name => name.length > 0);
-    
-    if (namesList.length === 0) {
-      setError('Að minnsta kosti eitt nafn er nauðsynlegt');
+    if (hasInvalidApartments) {
+      setError('Íbúðarnúmer og að minnsta kosti eitt nafn eru nauðsynleg fyrir hverja íbúð');
       return;
     }
     
@@ -232,16 +267,23 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     setError(null);
     
     try {
-      // Create an array of resident objects
-      const newResidents = namesList.map((name, index) => ({
-        name,
-        apartmentNumber,
-        priority: index, // Set priority based on order (first name has highest priority)
-        building_id: buildingId
-      }));
+      // Create residents for all apartments
+      const allResidents = multipleResidentsInput.apartments.flatMap((apartment) => {
+        const namesList = apartment.names
+          .split('\n')
+          .map(name => name.trim())
+          .filter(name => name.length > 0);
+        
+        return namesList.map((name, nameIndex) => ({
+          name,
+          apartmentNumber: apartment.apartmentNumber,
+          priority: nameIndex, // Set priority based on order (first name has highest priority)
+          building_id: buildingId
+        }));
+      });
       
       // Create multiple residents
-      await createMultipleResidents(newResidents);
+      await createMultipleResidents(allResidents);
       
       // Reload residents and reset form
       await loadResidents();
@@ -517,49 +559,78 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg" aria-describedby="multiple-residents-form-description">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg h-[90vh] flex flex-col p-0" aria-describedby="multiple-residents-form-description">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
               Settu inn upplýsingar um marga íbúa, einn íbúa í hverja línu
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleMultipleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="grid w-full items-center gap-2">
-                <label htmlFor="apartmentNumber" className="text-sm font-medium">Íbúð</label>
-                <Input
-                  id="apartmentNumber"
-                  name="apartmentNumber"
-                  value={multipleResidentsInput.apartmentNumber}
-                  onChange={handleMultipleInputChange}
-                  placeholder="Númer íbúðar"
-                  required
-                />
-              </div>
-              
-              <div className="grid w-full items-center gap-2">
-                <label htmlFor="names" className="text-sm font-medium">
-                  Nöfn íbúa (eitt nafn í hverja línu)
-                </label>
-                <textarea
-                  id="names"
-                  name="names"
-                  value={multipleResidentsInput.names}
-                  onChange={handleMultipleInputChange}
-                  placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
-                  required
-                  rows={6}
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <p className="text-xs text-gray-500">
-                  Fyrsta nafn fær hæstan forgang, síðan í röð þar á eftir.
-                </p>
+          <form onSubmit={handleMultipleSubmit} className="flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 min-h-0">
+              <div className="space-y-6 py-4">
+                {multipleResidentsInput.apartments.map((apartment, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-medium">Íbúð {index + 1}</h3>
+                      {multipleResidentsInput.apartments.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveApartment(index)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    
+                    <div className="grid w-full items-center gap-2">
+                      <label htmlFor={`apartmentNumber-${index}`} className="text-sm font-medium">Íbúð</label>
+                      <Input
+                        id={`apartmentNumber-${index}`}
+                        value={apartment.apartmentNumber}
+                        onChange={(e) => handleMultipleInputChange(index, 'apartmentNumber', e.target.value)}
+                        placeholder="Númer íbúðar"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid w-full items-center gap-2">
+                      <label htmlFor={`names-${index}`} className="text-sm font-medium">
+                        Nöfn íbúa (eitt nafn í hverja línu)
+                      </label>
+                      <textarea
+                        id={`names-${index}`}
+                        value={apartment.names}
+                        onChange={(e) => handleMultipleInputChange(index, 'names', e.target.value)}
+                        placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
+                        required
+                        rows={4}
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Fyrsta nafn fær hæstan forgang, síðan í röð þar á eftir.
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddApartment}
+                  className="w-full flex items-center justify-center gap-2 transition-all hover:bg-primary/10"
+                >
+                  <PlusIcon />
+                  Bæta við fleiri íbúðum
+                </Button>
               </div>
             </div>
             
-            <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+            <DialogFooter className="flex-col sm:flex-row gap-2 p-6 border-t mt-auto">
               <Button 
                 type="button" 
                 variant="outline" 
