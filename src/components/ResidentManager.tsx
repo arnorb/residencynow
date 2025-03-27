@@ -20,7 +20,6 @@ import {
 import { 
   Resident, 
   fetchResidents, 
-  createResident, 
   updateResident, 
   deleteResident,
   createMultipleResidents
@@ -107,7 +106,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Form state for adding/editing residents
+  // Form state for editing residents
   const [isEditing, setIsEditing] = useState(false);
   const [currentResident, setCurrentResident] = useState<Partial<Resident>>({});
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -202,26 +201,18 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
         // Update existing resident
         const { name, apartmentNumber, priority } = currentResident;
         await updateResident(currentResident.id, { name, apartmentNumber, priority });
-      } else {
-        // Create new resident
-        await createResident({
-          name: currentResident.name || '',
-          apartmentNumber: currentResident.apartmentNumber || '',
-          priority: currentResident.priority,
-          building_id: buildingId
-        });
+        
+        // Reload residents and reset form
+        await loadResidents();
+        
+        // Notify parent component about the change
+        if (onResidentsChange) {
+          onResidentsChange();
+        }
+        
+        resetForm();
+        setIsDialogOpen(false);
       }
-      
-      // Reload residents and reset form
-      await loadResidents();
-      
-      // Notify parent component about the change
-      if (onResidentsChange) {
-        onResidentsChange();
-      }
-      
-      resetForm();
-      setIsDialogOpen(false);
     } catch (err) {
       console.error('Error saving resident:', err);
       setError('Villa kom upp við að vista íbúa. Vinsamlegast reyndu aftur.');
@@ -335,12 +326,6 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     }
   };
   
-  // Handle add button click
-  const handleAdd = () => {
-    resetForm();
-    setIsDialogOpen(true);
-  };
-  
   // Handle add multiple button click
   const handleAddMultiple = () => {
     resetMultipleForm();
@@ -396,12 +381,6 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/10"
             >
               Bæta við mörgum
-            </Button>
-            <Button 
-              onClick={handleAdd} 
-              className="text-sm px-3 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/90"
-            >
-              Bæta við íbúa
             </Button>
           </div>
         </div>
@@ -488,9 +467,9 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg" aria-describedby="resident-form-description">
           <DialogHeader>
-            <DialogTitle>{isEditing ? 'Breyta íbúa' : 'Bæta við íbúa'}</DialogTitle>
+            <DialogTitle>Breyta íbúa</DialogTitle>
             <DialogDescription id="resident-form-description">
-              {isEditing ? 'Uppfærðu upplýsingar um íbúa' : 'Sláðu inn upplýsingar um nýjan íbúa'}
+              Uppfærðu upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
           
@@ -550,7 +529,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                 disabled={isLoading}
                 className="w-full sm:w-auto transition-all hover:bg-primary/90"
               >
-                {isLoading ? 'Hleð...' : isEditing ? 'Vista breytingar' : 'Bæta við'}
+                {isLoading ? 'Hleð...' : 'Vista breytingar'}
               </Button>
             </DialogFooter>
           </form>
