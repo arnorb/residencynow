@@ -560,7 +560,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
         <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg h-[90vh] flex flex-col p-0" aria-describedby="multiple-residents-form-description">
-          <DialogHeader className="px-6 pt-6 pb-4">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
             <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
               Settu inn upplýsingar um marga íbúa, einn íbúa í hverja línu
