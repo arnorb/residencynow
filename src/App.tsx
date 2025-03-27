@@ -239,8 +239,12 @@ function App() {
                 </div>
               </div>
               
-              <Tabs defaultValue="residents" className="w-full">
+              <Tabs defaultValue="manage" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
+                  <TabsTrigger value="manage" className="text-center">
+                    <span className="hidden sm:inline">Breyta gögnum</span>
+                    <span className="sm:hidden">Breyta</span>
+                  </TabsTrigger>
                   <TabsTrigger value="residents" className="text-center">
                     <span className="hidden sm:inline">Íbúalisti</span>
                     <span className="sm:hidden">Íbúar</span>
@@ -249,11 +253,15 @@ function App() {
                     <span className="hidden sm:inline">Póstkassamerki</span>
                     <span className="sm:hidden">Merki</span>
                   </TabsTrigger>
-                  <TabsTrigger value="manage" className="text-center">
-                    <span className="hidden sm:inline">Breyta gögnum</span>
-                    <span className="sm:hidden">Breyta</span>
-                  </TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="manage">
+                  <ResidentManager
+                    buildingId={selectedBuildingId}
+                    buildingName={selectedBuilding?.title || "Sýnigögn"}
+                    onResidentsChange={handleResidentsChange}
+                  />
+                </TabsContent>
                 
                 <TabsContent value="residents">
                   <PDFViewer 
@@ -269,14 +277,6 @@ function App() {
                     isLoading={isFetchingResidents}
                     onResidentsChange={handleResidentsChange}
                     buildingId={selectedBuildingId}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="manage">
-                  <ResidentManager
-                    buildingId={selectedBuildingId}
-                    buildingName={selectedBuilding?.title || "Sýnigögn"}
-                    onResidentsChange={handleResidentsChange}
                   />
                 </TabsContent>
               </Tabs>

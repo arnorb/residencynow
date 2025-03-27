@@ -377,10 +377,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button 
               onClick={handleAddMultiple} 
-              variant="outline" 
-              className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/10"
+              className="h-10 w-full sm:w-auto"
             >
-              Bæta við íbúum
+              <span className="flex items-center">
+                <PlusIcon className="mr-2" />
+                Bæta við íbúum
+              </span>
             </Button>
           </div>
         </div>
