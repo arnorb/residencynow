@@ -380,7 +380,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               variant="outline" 
               className="text-sm px-2 py-1 h-9 flex-grow sm:flex-grow-0 transition-all hover:bg-primary/10"
             >
-              Bæta við mörgum
+              Bæta við íbúum
             </Button>
           </div>
         </div>
@@ -404,7 +404,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
           </div>
         ) : residents.length === 0 ? (
           <div className="text-center py-8 text-gray-500 text-sm">
-            Engir íbúar fundust. Bættu við íbúa með því að smella á "Bæta við íbúa" hnappinn.
+            Engir íbúar fundust. Bættu við íbúa með því að smella á "Bæta við íbúum" hnappinn.
           </div>
         ) : (
           <>
@@ -540,9 +540,9 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
         <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg h-[90vh] flex flex-col p-0" aria-describedby="multiple-residents-form-description">
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
-            <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
+            <DialogTitle>Bæta við  íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
-              Settu inn upplýsingar um marga íbúa, einn íbúa í hverja línu
+              Settu inn upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
           
