@@ -467,171 +467,187 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg" aria-describedby="resident-form-description">
-          <DialogHeader>
+        <DialogContent className="flex flex-col p-0 max-h-full" aria-describedby="resident-form-description">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
             <DialogTitle>Breyta íbúa</DialogTitle>
             <DialogDescription id="resident-form-description">
               Uppfærðu upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              <div className="grid w-full items-center gap-2">
-                <label htmlFor="name" className="text-sm font-medium">Nafn</label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={currentResident.name || ''}
-                  onChange={handleInputChange}
-                  placeholder="Nafn íbúa"
-                  required
-                />
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="flex flex-col h-full">
+              <div className="px-6 py-6">
+                <div className="space-y-4">
+                  <div className="grid w-full items-center gap-2">
+                    <label htmlFor="name" className="text-sm font-medium">Nafn</label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={currentResident.name || ''}
+                      onChange={handleInputChange}
+                      placeholder="Nafn íbúa"
+                      required
+                      spellCheck="true"
+                      lang="is"
+                    />
+                  </div>
+                  
+                  <div className="grid w-full items-center gap-2">
+                    <label htmlFor="apartmentNumber" className="text-sm font-medium">Íbúð</label>
+                    <Input
+                      id="apartmentNumber"
+                      name="apartmentNumber"
+                      value={currentResident.apartmentNumber || ''}
+                      onChange={handleInputChange}
+                      placeholder="Númer íbúðar"
+                      required
+                      spellCheck="false"
+                    />
+                  </div>
+                  
+                  <div className="grid w-full items-center gap-2">
+                    <label htmlFor="priority" className="text-sm font-medium">Forgangur (valfrjálst)</label>
+                    <Input
+                      id="priority"
+                      name="priority"
+                      type="number"
+                      value={currentResident.priority === undefined ? '' : currentResident.priority}
+                      onChange={handleInputChange}
+                      placeholder="Forgangur (lægri tala = hærri forgangur)"
+                    />
+                  </div>
+                </div>
+                
+                <div className="pt-6 mt-6 border-t">
+                  <DialogFooter className="flex-col sm:flex-row gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        resetForm();
+                        setIsDialogOpen(false);
+                      }}
+                      className="w-full sm:w-auto transition-all hover:bg-primary/10"
+                    >
+                      Hætta við
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={isLoading}
+                      className="w-full sm:w-auto transition-all hover:bg-primary/90"
+                    >
+                      {isLoading ? 'Hleð...' : 'Vista breytingar'}
+                    </Button>
+                  </DialogFooter>
+                </div>
               </div>
-              
-              <div className="grid w-full items-center gap-2">
-                <label htmlFor="apartmentNumber" className="text-sm font-medium">Íbúð</label>
-                <Input
-                  id="apartmentNumber"
-                  name="apartmentNumber"
-                  value={currentResident.apartmentNumber || ''}
-                  onChange={handleInputChange}
-                  placeholder="Númer íbúðar"
-                  required
-                />
-              </div>
-              
-              <div className="grid w-full items-center gap-2">
-                <label htmlFor="priority" className="text-sm font-medium">Forgangur (valfrjálst)</label>
-                <Input
-                  id="priority"
-                  name="priority"
-                  type="number"
-                  value={currentResident.priority === undefined ? '' : currentResident.priority}
-                  onChange={handleInputChange}
-                  placeholder="Forgangur (lægri tala = hærri forgangur)"
-                />
-              </div>
-            </div>
-            
-            <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => {
-                  resetForm();
-                  setIsDialogOpen(false);
-                }}
-                className="w-full sm:w-auto transition-all hover:bg-primary/10"
-              >
-                Hætta við
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="w-full sm:w-auto transition-all hover:bg-primary/90"
-              >
-                {isLoading ? 'Hleð...' : 'Vista breytingar'}
-              </Button>
-            </DialogFooter>
-          </form>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[90vw] max-w-[90vw] rounded-lg h-[90vh] flex flex-col p-0" aria-describedby="multiple-residents-form-description">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 z-10">
-            <DialogTitle>Bæta við  íbúum</DialogTitle>
+        <DialogContent className="flex flex-col p-0 sm:max-w-2xl max-h-full" aria-describedby="multiple-residents-form-description">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
+            <DialogTitle>Bæta við íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
               Settu inn upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleMultipleSubmit} className="flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto px-6 min-h-0">
-              <div className="space-y-6 py-4">
-                {multipleResidentsInput.apartments.map((apartment, index) => (
-                  <div key={index} className="space-y-4 p-4 border rounded-lg relative">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-medium">Íbúð {index + 1}</h3>
-                      {multipleResidentsInput.apartments.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveApartment(index)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </Button>
-                      )}
+          <div className="flex-1 overflow-y-auto">
+            <form onSubmit={handleMultipleSubmit} className="flex flex-col h-full">
+              <div className="px-6 py-6">
+                <div className="space-y-6">
+                  {multipleResidentsInput.apartments.map((apartment, index) => (
+                    <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-medium">Íbúð {index + 1}</h3>
+                        {multipleResidentsInput.apartments.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveApartment(index)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className="grid w-full items-center gap-2">
+                        <label htmlFor={`apartmentNumber-${index}`} className="text-sm font-medium">Íbúð</label>
+                        <Input
+                          id={`apartmentNumber-${index}`}
+                          value={apartment.apartmentNumber}
+                          onChange={(e) => handleMultipleInputChange(index, 'apartmentNumber', e.target.value)}
+                          placeholder="Númer íbúðar"
+                          required
+                          spellCheck="false"
+                        />
+                      </div>
+                      
+                      <div className="grid w-full items-center gap-2">
+                        <label htmlFor={`names-${index}`} className="text-sm font-medium">
+                          Nöfn íbúa (eitt nafn í hverja línu)
+                        </label>
+                        <textarea
+                          id={`names-${index}`}
+                          value={apartment.names}
+                          onChange={(e) => handleMultipleInputChange(index, 'names', e.target.value)}
+                          placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
+                          required
+                          rows={4}
+                          spellCheck="true"
+                          lang="is"
+                          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <p className="text-xs text-gray-500">
+                          Fyrsta nafn fær hæstan forgang, síðan í röð þar á eftir.
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div className="grid w-full items-center gap-2">
-                      <label htmlFor={`apartmentNumber-${index}`} className="text-sm font-medium">Íbúð</label>
-                      <Input
-                        id={`apartmentNumber-${index}`}
-                        value={apartment.apartmentNumber}
-                        onChange={(e) => handleMultipleInputChange(index, 'apartmentNumber', e.target.value)}
-                        placeholder="Númer íbúðar"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="grid w-full items-center gap-2">
-                      <label htmlFor={`names-${index}`} className="text-sm font-medium">
-                        Nöfn íbúa (eitt nafn í hverja línu)
-                      </label>
-                      <textarea
-                        id={`names-${index}`}
-                        value={apartment.names}
-                        onChange={(e) => handleMultipleInputChange(index, 'names', e.target.value)}
-                        placeholder="Jón Jónsson&#10;Anna Guðmundsdóttir&#10;Guðrún Sigurðardóttir"
-                        required
-                        rows={4}
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                      <p className="text-xs text-gray-500">
-                        Fyrsta nafn fær hæstan forgang, síðan í röð þar á eftir.
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddApartment}
+                    className="w-full flex items-center justify-center gap-2 transition-all hover:bg-primary/10"
+                  >
+                    <PlusIcon />
+                    Bæta við fleiri íbúðum
+                  </Button>
+                </div>
                 
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleAddApartment}
-                  className="w-full flex items-center justify-center gap-2 transition-all hover:bg-primary/10"
-                >
-                  <PlusIcon />
-                  Bæta við fleiri íbúðum
-                </Button>
+                <div className="pt-6 mt-6 border-t">
+                  <DialogFooter className="flex-col sm:flex-row gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        resetMultipleForm();
+                        setIsMultipleDialogOpen(false);
+                      }}
+                      className="w-full sm:w-auto transition-all hover:bg-primary/10"
+                    >
+                      Hætta við
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={isLoading}
+                      className="w-full sm:w-auto transition-all hover:bg-primary/90"
+                    >
+                      {isLoading ? 'Hleð...' : 'Bæta við'}
+                    </Button>
+                  </DialogFooter>
+                </div>
               </div>
-            </div>
-            
-            <DialogFooter className="flex-col sm:flex-row gap-2 p-6 border-t mt-auto">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => {
-                  resetMultipleForm();
-                  setIsMultipleDialogOpen(false);
-                }}
-                className="w-full sm:w-auto transition-all hover:bg-primary/10"
-              >
-                Hætta við
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="w-full sm:w-auto transition-all hover:bg-primary/90"
-              >
-                {isLoading ? 'Hleð...' : 'Bæta við'}
-              </Button>
-            </DialogFooter>
-          </form>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
     </Card>
