@@ -423,49 +423,51 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
           setIsDialogOpen(open);
         }}
       >
-        <DialogContent className="sm:max-w-[550px] z-50 bg-white" aria-describedby="sort-dialog-description">
+        <DialogContent className="sm:max-w-[550px] z-50 bg-white flex flex-col h-[100vh] sm:h-[80vh]" aria-describedby="sort-dialog-description">
           {selectedApartment && (
             <>
-              <DialogHeader>
+              <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10">
                 <DialogTitle>Röðun íbúa í íbúð {selectedApartment}</DialogTitle>
                 <DialogDescription id="sort-dialog-description">
                   Dragðu nöfn til að raða - nöfn efst á lista birtast fyrst á póstkassamerki
                 </DialogDescription>
               </DialogHeader>
               
-              <div className="py-2">
-                {error && (
-                  <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm">
-                    {error}
-                  </div>
-                )}
-                
-                <div className="w-full">
-                  <div className={`mt-4 ${isSaving ? 'opacity-70' : ''}`}>
-                    {sortedResidents.length === 0 ? (
-                      <p className="text-gray-500 text-sm text-center py-4">
-                        Engir íbúar skráðir í þessa íbúð
-                      </p>
-                    ) : (
-                      <DndContext 
-                        sensors={sensors} 
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <SortableContext 
-                          items={sortedResidents.map(r => r.id?.toString() || '')}
-                          strategy={verticalListSortingStrategy}
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-6 py-4">
+                  {error && (
+                    <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4 text-sm">
+                      {error}
+                    </div>
+                  )}
+                  
+                  <div className="w-full">
+                    <div className={`${isSaving ? 'opacity-70' : ''}`}>
+                      {sortedResidents.length === 0 ? (
+                        <p className="text-gray-500 text-sm text-center py-4">
+                          Engir íbúar skráðir í þessa íbúð
+                        </p>
+                      ) : (
+                        <DndContext 
+                          sensors={sensors} 
+                          collisionDetection={closestCenter}
+                          onDragEnd={handleDragEnd}
                         >
-                          {sortedResidents.map((resident, index) => (
-                            <SortableResident 
-                              key={resident.id} 
-                              resident={resident} 
-                              position={index}
-                            />
-                          ))}
-                        </SortableContext>
-                      </DndContext>
-                    )}
+                          <SortableContext 
+                            items={sortedResidents.map(r => r.id?.toString() || '')}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            {sortedResidents.map((resident, index) => (
+                              <SortableResident 
+                                key={resident.id} 
+                                resident={resident} 
+                                position={index}
+                              />
+                            ))}
+                          </SortableContext>
+                        </DndContext>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -497,13 +499,13 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                 </div>
               )}
               
-              <DialogFooter>
-                <div className="flex w-full justify-between gap-2">
+              <DialogFooter className="px-6 py-3 border-t sticky bottom-0 bg-background z-10">
+                <div className="flex flex-col sm:flex-row w-full justify-between gap-2">
                   <Button 
                     variant="outline" 
                     onClick={() => setIsDialogOpen(false)}
                     disabled={isSaving}
-                    className="w-full sm:w-auto transition-all hover:bg-primary/10"
+                    className="w-full transition-all hover:bg-primary/10"
                   >
                     Hætta við
                   </Button>
@@ -511,7 +513,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                   <Button 
                     onClick={handleSavePriorities}
                     disabled={!isModified || isSaving}
-                    className="w-full sm:w-auto transition-all hover:bg-primary/90"
+                    className="w-full transition-all hover:bg-primary/90"
                   >
                     {isSaving ? 'Vista...' : 'Vista breytingar'}
                   </Button>
