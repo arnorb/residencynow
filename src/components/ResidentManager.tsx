@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { 
@@ -105,6 +105,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   const [residents, setResidents] = useState<Resident[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastAddedApartmentRef = useRef<HTMLDivElement>(null);
   
   // Form state for editing residents
   const [isEditing, setIsEditing] = useState(false);
@@ -227,6 +228,11 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       ...multipleResidentsInput,
       apartments: [...multipleResidentsInput.apartments, { apartmentNumber: '', names: '' }]
     });
+    
+    // Scroll to the new apartment after it's added
+    setTimeout(() => {
+      lastAddedApartmentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
   
   // Remove apartment input
@@ -549,7 +555,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="flex flex-col p-0 sm:max-w-2xl max-h-full" aria-describedby="multiple-residents-form-description">
+        <DialogContent className="flex flex-col p-0 sm:max-w-2xl h-[100vh] sm:h-[80vh]" aria-describedby="multiple-residents-form-description">
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
             <DialogTitle>Bæta við íbúum</DialogTitle>
             <DialogDescription id="multiple-residents-form-description">
@@ -562,7 +568,11 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               <div className="px-6 py-6">
                 <div className="space-y-6">
                   {multipleResidentsInput.apartments.map((apartment, index) => (
-                    <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                    <div 
+                      key={index} 
+                      ref={index === multipleResidentsInput.apartments.length - 1 ? lastAddedApartmentRef : undefined}
+                      className="space-y-4 p-4 border rounded-lg relative"
+                    >
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="font-medium">Íbúð {index + 1}</h3>
                         {multipleResidentsInput.apartments.length > 1 && (
