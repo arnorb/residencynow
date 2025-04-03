@@ -499,25 +499,23 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                 </div>
               )}
               
-              <DialogFooter className="px-6 py-3 border-t sticky bottom-0 bg-background z-10">
-                <div className="flex flex-col sm:flex-row w-full justify-between gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsDialogOpen(false)}
-                    disabled={isSaving}
-                    className="w-full transition-all hover:bg-primary/10"
-                  >
-                    Hætta við
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleSavePriorities}
-                    disabled={!isModified || isSaving}
-                    className="w-full transition-all hover:bg-primary/90"
-                  >
-                    {isSaving ? 'Vista...' : 'Vista breytingar'}
-                  </Button>
-                </div>
+              <DialogFooter className="px-6 py-3 border-t sticky bottom-0 bg-background z-10 flex flex-col sm:flex-row w-full justify-between gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)}
+                  disabled={isSaving}
+                  className="w-full sm:w-auto transition-all hover:bg-primary/10"
+                >
+                  Hætta við
+                </Button>
+                
+                <Button 
+                  onClick={handleSavePriorities}
+                  disabled={!isModified || isSaving}
+                  className="w-full sm:w-auto transition-all hover:bg-primary/90"
+                >
+                  {isSaving ? 'Vista...' : 'Vista breytingar'}
+                </Button>
               </DialogFooter>
             </>
           )}
