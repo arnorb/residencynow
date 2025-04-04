@@ -82,7 +82,7 @@ const SortableResident = ({ resident, position }: { resident: Resident, position
       style={style} 
       {...attributes} 
       {...listeners}
-      className="bg-white p-3 mb-2 rounded-md shadow-sm border border-gray-200 cursor-move flex justify-between items-center"
+      className="bg-white p-3 mb-2 rounded-md shadow-sm border border-gray-200 cursor-move flex justify-between items-center select-none"
     >
       <div className="flex items-center">
         <div className="bg-gray-200 text-gray-700 w-7 h-7 rounded-full flex items-center justify-center mr-3">
@@ -453,18 +453,20 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                           collisionDetection={closestCenter}
                           onDragEnd={handleDragEnd}
                         >
-                          <SortableContext 
-                            items={sortedResidents.map(r => r.id?.toString() || '')}
-                            strategy={verticalListSortingStrategy}
-                          >
-                            {sortedResidents.map((resident, index) => (
-                              <SortableResident 
-                                key={resident.id} 
-                                resident={resident} 
-                                position={index}
-                              />
-                            ))}
-                          </SortableContext>
+                          <div className="select-none">
+                            <SortableContext 
+                              items={sortedResidents.map(r => r.id?.toString() || '')}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {sortedResidents.map((resident, index) => (
+                                <SortableResident 
+                                  key={resident.id} 
+                                  resident={resident} 
+                                  position={index}
+                                />
+                              ))}
+                            </SortableContext>
+                          </div>
                         </DndContext>
                       )}
                     </div>
