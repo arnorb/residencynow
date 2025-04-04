@@ -8,6 +8,14 @@ import {
   SelectTrigger,
   SelectValue
 } from "./components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "./components/ui/dialog"
 import PDFViewer from './components/PDFViewer'
 import MailboxLabelsViewer from './components/MailboxLabelsViewer'
 import ResidentManager from './components/ResidentManager'
@@ -30,6 +38,7 @@ function App() {
   const [isBuildingsLoading, setIsBuildingsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hasBuildingSelection, setHasBuildingSelection] = useState(false)
+  const [showBuildingModal, setShowBuildingModal] = useState<boolean>(false)
   const { logout, user, isAuthenticated } = useAuth()
 
   // Define logout button component
@@ -84,9 +93,13 @@ function App() {
         setBuildings(data)
         setHasBuildingSelection(true)
         
-        // Only set default building if no building is selected
-        if (!selectedBuildingId) {
-          setSelectedBuildingId(data[0].id)
+        // Check if this is the first visit (no building selected)
+        const savedBuildingId = localStorage.getItem('lastSelectedBuilding');
+        if (!savedBuildingId) {
+          setShowBuildingModal(true);
+        } else if (!selectedBuildingId) {
+          // Only set default building if no building is selected but we have a saved one
+          setSelectedBuildingId(parseInt(savedBuildingId))
         }
       } else {
         console.warn('No buildings found or empty response');
@@ -135,6 +148,22 @@ function App() {
 
   // Get the selected building name
   const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
+
+  // Handle building selection from the modal
+  const handleBuildingSelection = (buildingId: number) => {
+    setSelectedBuildingId(buildingId);
+    setShowBuildingModal(false);
+  };
+  
+  // Prevent modal from closing if no building is selected
+  const handleModalOpenChange = (open: boolean) => {
+    // Only allow closing if a building is already selected
+    if (!open && !selectedBuildingId && !localStorage.getItem('lastSelectedBuilding')) {
+      // Keep modal open if trying to close without a selection
+      return;
+    }
+    setShowBuildingModal(open);
+  };
 
   // Callback function to refresh residents data after changes
   const handleResidentsChange = useCallback(() => {
@@ -289,6 +318,35 @@ function App() {
             {error}
           </div>
         )}
+
+        {/* Building Selection Modal */}
+        <Dialog open={showBuildingModal} onOpenChange={handleModalOpenChange}>
+          <DialogContent className="sm:max-w-md p-0 [&>button]:hidden">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b">
+              <DialogTitle>Veldu byggingu</DialogTitle>
+              <DialogDescription>
+                Vinsamlegast veldu byggingu til að skoða íbúa og póstkassamerki.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 px-6 py-6 max-h-[50vh] overflow-y-auto pr-6 sm:grid-cols-2">
+              {buildings.map((building) => (
+                <Button
+                  key={building.id}
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                  onClick={() => handleBuildingSelection(building.id)}
+                >
+                  {building.title}
+                </Button>
+              ))}
+            </div>
+            <DialogFooter className="px-6 py-4 border-t">
+              <DialogDescription className="text-xs">
+                Þú getur alltaf breytt um byggingu síðar með því að nota fellivalmyndina efst á síðunni.
+              </DialogDescription>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   )
