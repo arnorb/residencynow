@@ -90,7 +90,26 @@ function App() {
       // Check if we got actual data back (not an empty array)
       if (data && data.length > 0) {
         console.log('Successfully fetched buildings data:', data);
-        setBuildings(data)
+        // Sort buildings by name and then by number
+        const sortedData = [...data].sort((a, b) => {
+          // Extract name and number parts safely
+          const aMatch = a.title.match(/^(.*?)(\d+)?$/) || ['', a.title, ''];
+          const bMatch = b.title.match(/^(.*?)(\d+)?$/) || ['', b.title, ''];
+          const aName = aMatch[1] || '';
+          const bName = bMatch[1] || '';
+          const aNum = aMatch[2] || '';
+          const bNum = bMatch[2] || '';
+          
+          // First compare the names
+          const nameComparison = aName.localeCompare(bName);
+          if (nameComparison !== 0) return nameComparison;
+          
+          // If names are equal, compare the numbers
+          const numA = aNum ? parseInt(aNum) : 0;
+          const numB = bNum ? parseInt(bNum) : 0;
+          return numA - numB;
+        });
+        setBuildings(sortedData)
         setHasBuildingSelection(true)
         
         // Check if this is the first visit (no building selected)
