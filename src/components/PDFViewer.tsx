@@ -23,7 +23,7 @@ const preloadFonts = async () => {
         { src: FiraSansMedium, fontWeight: 'medium' },
       ]
     });
-    console.log('Fonts preloaded successfully');
+    // console.log('Fonts preloaded successfully');
     return true;
   } catch (error) {
     console.error('Error preloading fonts:', error);

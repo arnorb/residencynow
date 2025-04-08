@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     paddingVertical: 6,
-    fontSize: 10,
+    fontSize: 12,
     width: '100%',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
@@ -155,8 +155,10 @@ const ResidentList: React.FC<ResidentListProps> = ({
   subtitle = 'Veljið númer íbúðar og ýtið á bjöllutáknið',
   buildingName 
 }) => {
-  // Sort residents alphabetically by name
-  const sortedResidents = sortResidentsByName(residents);
+  // Filter out residents with exclude_a4 set to false
+  const filteredResidents = residents.filter(resident => resident.exclude_a4 !== true);
+  // Sort filtered residents alphabetically by name
+  const sortedResidents = sortResidentsByName(filteredResidents);
   
   // Split residents into two columns
   const midpoint = Math.ceil(sortedResidents.length / 2);

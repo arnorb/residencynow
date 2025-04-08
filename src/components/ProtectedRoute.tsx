@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [sessionChecked, setSessionChecked] = useState(false);
 
   // Check for any existing session on component mount
@@ -16,12 +16,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const checkSession = async () => {
       try {
         // Check if there's a session with Supabase
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        console.log('ProtectedRoute session check:', { 
-          hasSession: !!session,
-          sessionUser: session?.user?.email 
-        });
+        await supabase.auth.getSession();
         
         setSessionChecked(true);
       } catch (error) {
@@ -32,17 +27,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     
     checkSession();
   }, []);
-
-  // Log authentication state for debugging
-  useEffect(() => {
-    console.log('ProtectedRoute auth state:', { 
-      isAuthenticated, 
-      loading, 
-      hasUser: !!user,
-      userEmail: user?.email,
-      sessionChecked
-    });
-  }, [isAuthenticated, loading, user, sessionChecked]);
 
   // Show a loading state while checking authentication
   if (loading || !sessionChecked) {

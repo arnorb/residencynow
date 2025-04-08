@@ -35,11 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         
         // Get current session and user
-        const { data: { session } } = await supabase.auth.getSession();
+        // const { data: { session } } = await supabase.auth.getSession();
         const currentUser = await getCurrentUser();
         
         setUser(currentUser);
-        console.log("Current auth state:", { currentUser, session });
+        // console.log("Current auth state:", { currentUser, session });
       } catch (err) {
         console.error('Error checking authentication:', err);
         setError('Error checking authentication status');
@@ -52,8 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        console.log("Auth state changed:", event, session?.user);
+      async (_: AuthChangeEvent, session: Session | null) => {
+        // console.log("Auth state changed:", event, session?.user);
         setUser(session?.user ?? null);
       }
     );
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Set the user explicitly from the response
       setUser(data.user);
-      console.log("Successfully logged in as:", data.user.email);
+      // console.log("Successfully logged in as:", data.user.email);
       
       // Force a session refresh to ensure we have the latest state
       await supabase.auth.refreshSession();
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       await signOut();
       setUser(null);
-      console.log("Successfully logged out");
+      // console.log("Successfully logged out");
     } catch (err: unknown) {
       console.error('Logout error:', err);
       // Type guard for error with message property

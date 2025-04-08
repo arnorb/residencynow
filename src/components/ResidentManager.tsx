@@ -109,7 +109,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   
   // Form state for editing residents
   const [isEditing, setIsEditing] = useState(false);
-  const [currentResident, setCurrentResident] = useState<Partial<Resident>>({});
+  const [currentResident, setCurrentResident] = useState<Partial<Resident>>({ exclude_a4: false });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // State for multiple residents dialog
@@ -200,8 +200,8 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     try {
       if (isEditing && currentResident.id) {
         // Update existing resident
-        const { name, apartmentNumber, priority } = currentResident;
-        await updateResident(currentResident.id, { name, apartmentNumber, priority });
+        const { name, apartmentNumber, priority, exclude_a4 } = currentResident;
+        await updateResident(currentResident.id, { name, apartmentNumber, priority, exclude_a4 });
         
         // Reload residents and reset form
         await loadResidents();
@@ -522,6 +522,18 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                       onChange={handleInputChange}
                       placeholder="Forgangur (lægri tala = hærri forgangur)"
                     />
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="exclude_a4"
+                      name="exclude_a4"
+                      type="checkbox"
+                      checked={currentResident.exclude_a4 || false}
+                      onChange={(e) => setCurrentResident({ ...currentResident, exclude_a4: e.target.checked })}
+                      className="rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="exclude_a4" className="text-sm font-medium">Fela í íbúalista</label>
                   </div>
                 </div>
                 

@@ -85,6 +85,7 @@ export interface Resident {
   apartmentNumber: string; // Using camelCase to match existing code
   priority?: number;
   building_id: number;
+  exclude_a4?: boolean;
 }
 
 export interface Building {
@@ -107,6 +108,7 @@ interface DbResident {
   apartment_number: string;
   priority?: number;
   building_id: number;
+  exclude_a4?: boolean;
 }
 
 const mapFromDbResident = (dbResident: DbResident): Resident => ({
@@ -114,7 +116,8 @@ const mapFromDbResident = (dbResident: DbResident): Resident => ({
   name: dbResident.name,
   apartmentNumber: dbResident.apartment_number,
   priority: dbResident.priority,
-  building_id: dbResident.building_id
+  building_id: dbResident.building_id,
+  exclude_a4: dbResident.exclude_a4,
 });
 
 // Fetch all buildings
@@ -133,14 +136,14 @@ export async function fetchBuildings(): Promise<Building[]> {
       .order('id');
     
     if (error) {
-      console.error('Error fetching buildings:', error);
+     // console.error('Error fetching buildings:', error);
       if (error.code === 'PGRST301' || error.message.includes('JWT')) {
         console.error('Authentication error when fetching buildings - session may be invalid');
       }
       throw error;
     }
     
-    console.log(`Successfully fetched ${data?.length || 0} buildings`);
+    // console.log(`Successfully fetched ${data?.length || 0} buildings`);
     return data || [];
   } catch (error) {
     console.error('Error fetching buildings:', error);
@@ -172,7 +175,7 @@ export async function fetchResidents(buildingId: number): Promise<Resident[]> {
       throw error;
     }
     
-    console.log(`Successfully fetched ${data?.length || 0} residents for building ${buildingId}`);
+    // console.log(`Successfully fetched ${data?.length || 0} residents for building ${buildingId}`);
     // Map from database format to application format
     return (data || []).map(mapFromDbResident);
   } catch (error) {
@@ -212,6 +215,7 @@ export async function updateResident(id: number, updates: Partial<Omit<Resident,
     if (updates.name !== undefined) dbUpdates.name = updates.name;
     if (updates.apartmentNumber !== undefined) dbUpdates.apartment_number = updates.apartmentNumber;
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
+    if (updates.exclude_a4 !== undefined) dbUpdates.exclude_a4 = updates.exclude_a4;
     
     const { data, error } = await supabase
       .from('residents')

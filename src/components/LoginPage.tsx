@@ -33,7 +33,7 @@ const LoginPage = () => {
       const result = await login(email, password);
       
       if (result) {
-        console.log("Login successful in LoginPage component");
+        // console.log("Login successful in LoginPage component");
         // Force a small delay to ensure state is updated
         setTimeout(() => {
           window.location.reload(); // Force reload to ensure proper state

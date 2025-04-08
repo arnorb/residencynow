@@ -93,7 +93,7 @@ function App() {
       
       // Check if we got actual data back (not an empty array)
       if (data && data.length > 0) {
-        console.log('Successfully fetched buildings data:', data);
+        // console.log('Successfully fetched buildings data:', data);
         // Sort buildings by name and then by number
         const sortedData = [...data].sort((a, b) => {
           // Extract name and number parts safely
@@ -164,7 +164,7 @@ function App() {
   useEffect(() => {
     // When a user becomes authenticated, refetch the buildings data
     if (isAuthenticated && user) {
-      console.log('User authenticated, fetching buildings data');
+      // console.log('User authenticated, fetching buildings data');
       fetchBuildingsList();
     }
   }, [isAuthenticated, user, fetchBuildingsList]);

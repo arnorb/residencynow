@@ -111,7 +111,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
   
   // Debug useEffect for tracking dialog state
   useEffect(() => {
-    console.log("Dialog state changed:", { isDialogOpen, selectedApartment });
+    // console.log("Dialog state changed:", { isDialogOpen, selectedApartment });
   }, [isDialogOpen, selectedApartment]);
   
   // Group residents by apartment number
@@ -131,7 +131,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
   
   // Handle opening the sorting dialog
   const handleOpenSortDialog = (apartmentNumber: string) => {
-    console.log("Opening sort dialog for apartment:", apartmentNumber);
+    // console.log("Opening sort dialog for apartment:", apartmentNumber);
     setSelectedApartment(apartmentNumber);
     setSortedResidents(sortResidentsByPriority(groupedResidents[apartmentNumber]));
     setIsModified(false);
@@ -187,7 +187,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
       await Promise.all(updatePromises);
       
       // Log the buildingId for debugging purposes
-      console.log(`Updated priorities for residents in building: ${buildingId}`);
+      // console.log(`Updated priorities for residents in building: ${buildingId}`);
       
       if (onResidentsChange) {
         onResidentsChange();
@@ -236,7 +236,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                 size="sm" 
                 variant="outline"
                 onClick={() => {
-                  console.log("Opening dialog for apartment:", apartmentNumber);
+                  // console.log("Opening dialog for apartment:", apartmentNumber);
                   handleOpenSortDialog(apartmentNumber);
                 }}
                 className="h-10 px-4 transition-all hover:bg-primary/10"
@@ -403,7 +403,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
                           size="sm" 
                           variant="outline"
                           onClick={() => {
-                            console.log("Opening dialog for apartment:", apartmentNumber);
+                            // console.log("Opening dialog for apartment:", apartmentNumber);
                             handleOpenSortDialog(apartmentNumber);
                           }}
                           className="transition-all hover:bg-primary/10"
@@ -445,7 +445,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
       <Dialog 
         open={isDialogOpen} 
         onOpenChange={(open) => {
-          console.log("Dialog open state change:", open);
+          // console.log("Dialog open state change:", open);
           setIsDialogOpen(open);
         }}
       >
