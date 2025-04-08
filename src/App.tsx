@@ -43,14 +43,18 @@ function App() {
 
   // Define logout button component
   const LogoutButton = () => (
-    <Button 
-      variant="outline" 
-      size="sm" 
-      onClick={logout}
-      className="absolute top-4 right-4"
-    >
-      Útskrá
-    </Button>
+    <div className="absolute right-4 top-4 flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-4">
+      <span className="text-xs sm:text-sm text-gray-600 text-right">
+        {user?.email}
+      </span>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={logout}
+      >
+        Útskrá
+      </Button>
+    </div>
   );
 
   // Load sample data for testing
