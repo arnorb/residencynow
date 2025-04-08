@@ -34,6 +34,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { CSVLink } from 'react-csv';
 
 // Download icon component
 const DownloadIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
@@ -202,6 +203,17 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
     }
   };
 
+  const generateCSVData = () => {
+    const csvData = [['Apartment', 'Residents']];
+    apartmentNumbers.forEach(apartmentNumber => {
+      const residentsList = sortResidentsByPriority(groupedResidents[apartmentNumber])
+        .map(resident => resident.name)
+        .join('\n');
+      csvData.push([apartmentNumber, residentsList]);
+    });
+    return csvData;
+  };
+
   // Card view for mobile
   const MobileMailboxCard = ({ apartmentNumber }: { apartmentNumber: string }) => {
     const residents = groupedResidents[apartmentNumber];
@@ -310,31 +322,45 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle>{title}</CardTitle>
-            <PDFDownloadLink
-              document={
-                <AllMailboxLabels
-                  residents={residents}
-                />
-              }
-              fileName={`postkassamerki_${buildingName ? buildingName.toLowerCase().replace(/\s+/g, '_') : 'oll'}.pdf`}
-              className="no-underline"
-            >
-              {({ loading }) => (
-                <Button disabled={loading} className="h-10 w-full sm:w-auto">
-                  {loading ? (
-                    <span className="flex items-center">
-                      <span className="animate-pulse mr-2">...</span>
-                      Hleð...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      <DownloadIcon className="mr-2" />
-                      Sækja öll merki
-                    </span>
-                  )}
+            <div className="flex gap-2">
+              <PDFDownloadLink
+                document={
+                  <AllMailboxLabels
+                    residents={residents}
+                  />
+                }
+                fileName={`postkassamerki_${buildingName ? buildingName.toLowerCase().replace(/\s+/g, '_') : 'oll'}.pdf`}
+                className="no-underline"
+              >
+                {({ loading }) => (
+                  <Button disabled={loading} className="h-10 w-full sm:w-auto">
+                    {loading ? (
+                      <span className="flex items-center">
+                        <span className="animate-pulse mr-2">...</span>
+                        Hleð...
+                      </span>
+                    ) : (
+                      <span className="flex items-center">
+                        <DownloadIcon className="mr-2" />
+                        Sækja öll merki
+                      </span>
+                    )}
+                  </Button>
+                )}
+              </PDFDownloadLink>
+              <CSVLink
+                data={generateCSVData()}
+                filename={`residents_${buildingName ? buildingName.toLowerCase().replace(/\s+/g, '_') : 'all'}.csv`}
+                className="no-underline"
+              >
+                <Button className="h-10 w-full sm:w-auto">
+                  <span className="flex items-center">
+                    <DownloadIcon className="mr-2" />
+                    Sækja CSV
+                  </span>
                 </Button>
-              )}
-            </PDFDownloadLink>
+              </CSVLink>
+            </div>
           </div>
         </CardHeader>
         
