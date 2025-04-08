@@ -1,7 +1,8 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import { Resident } from '../services/supabase';
 import { sortResidentsByName } from '../utils/residentUtils';
+import QRCode from 'qrcode';
 
 // Import font files directly
 import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
@@ -19,6 +20,41 @@ Font.register({
     { src: FiraSansMedium, fontWeight: 'medium' },
   ]
 });
+
+// QR Code component for React PDF
+interface QRCodeProps {
+  value: string;
+  size?: number;
+}
+
+const PDFQRCode: React.FC<QRCodeProps> = ({ value, size = 60 }) => {
+  const [imageData, setImageData] = React.useState<string | null>(null);
+  
+  React.useEffect(() => {
+    const generateQRCode = async () => {
+      try {
+        // Generate QR code as a data URL
+        const dataUrl = await QRCode.toDataURL(value, {
+          margin: 1,
+          width: size,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        });
+        setImageData(dataUrl);
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+      }
+    };
+    
+    generateQRCode();
+  }, [value, size]);
+
+  return imageData ? (
+    <Image src={imageData} style={{ width: size, height: size }} />
+  ) : null;
+};
 
 // Create styles
 const styles = StyleSheet.create({
@@ -86,9 +122,23 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: 30,
     right: 30,
-    textAlign: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     fontSize: 10,
     color: '#666',
+  },
+  footerDate: {
+    textAlign: 'left',
+    alignSelf: 'flex-end',
+  },
+  qrCodeContainer: {
+    alignItems: 'center',
+  },
+  qrCodeText: {
+    fontSize: 8,
+    marginTop: 5,
+    textAlign: 'center',
   },
 });
 
@@ -112,6 +162,9 @@ const ResidentList: React.FC<ResidentListProps> = ({
   const midpoint = Math.ceil(sortedResidents.length / 2);
   const leftColumnResidents = sortedResidents.slice(0, midpoint);
   const rightColumnResidents = sortedResidents.slice(midpoint);
+
+  // URL for QR code
+  const qrCodeUrl = "mailto:arnarhlid2@gmail.com";
 
   return (
     <Document>
@@ -151,9 +204,15 @@ const ResidentList: React.FC<ResidentListProps> = ({
           </View>
         </View>
         
-        <Text style={styles.footer}>
-          Útprentað: {new Date().toLocaleDateString('is-IS')}. Sendið póst á arnarhlid2@gmail.com fyrir breytingar.
-        </Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerDate}>
+            Útprentað: {new Date().toLocaleDateString('is-IS')}
+          </Text>
+          <View style={styles.qrCodeContainer}>
+            <PDFQRCode value={qrCodeUrl} size={60} />
+            <Text style={styles.qrCodeText}>Breytingar</Text>
+          </View>
+        </View>
       </Page>
     </Document>
   );
