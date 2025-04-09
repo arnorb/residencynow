@@ -58,7 +58,6 @@ interface MailboxLabelsViewerProps {
   residents: Resident[];
   buildingName?: string;
   isLoading?: boolean;
-  buildingId: number;
   onResidentsChange?: () => void;
 }
 
@@ -99,7 +98,6 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
   residents, 
   buildingName,
   isLoading = false,
-  buildingId,
   onResidentsChange
 }) => {
   const [selectedApartment, setSelectedApartment] = useState<string | null>(null);
