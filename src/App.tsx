@@ -328,7 +328,6 @@ function App() {
                     buildingName={selectedBuilding?.title || "Sýnigögn"}
                     isLoading={isFetchingResidents}
                     onResidentsChange={handleResidentsChange}
-                    buildingId={selectedBuildingId}
                   />
                 </TabsContent>
               </Tabs>
