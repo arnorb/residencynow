@@ -18,9 +18,9 @@ Font.register({
 // Create styles for the mailbox labels
 const styles = StyleSheet.create({
   page: {
-    width: '7cm',
-    height: '5cm',
-    padding: '0.5cm',
+    width: '9cm',
+    height: '3.8cm',
+    padding: '0.3cm',
     backgroundColor: '#ffffff',
     fontFamily: 'Fira Sans',
   },
@@ -29,18 +29,18 @@ const styles = StyleSheet.create({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    padding: '0.3cm',
+    padding: '0.1cm',
   },
   apartmentNumber: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: '0.3cm',
-    textAlign: 'center',
+    marginBottom: '0.1cm',
+    textAlign: 'left',
   },
   residentName: {
     fontSize: 11,
     marginBottom: '0.1cm',
-    textAlign: 'center',
+    textAlign: 'left',
   }
 });
 
@@ -65,7 +65,7 @@ const AllMailboxLabels: React.FC<AllMailboxLabelsProps> = ({ residents }) => {
         const sortedResidents = sortResidentsByPriority(groupedResidents[apartmentNumber]);
         
         return (
-          <Page key={apartmentNumber} size={[198, 141]} style={styles.page}>
+          <Page key={apartmentNumber} size={[255.12, 107.72]} style={styles.page}>
             <View style={styles.label}>
               <Text style={styles.apartmentNumber}>{apartmentNumber}</Text>
               {sortedResidents.map((resident, index) => (

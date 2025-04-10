@@ -605,10 +605,18 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                         <Input
                           id={`apartmentNumber-${index}`}
                           value={apartment.apartmentNumber}
-                          onChange={(e) => handleMultipleInputChange(index, 'apartmentNumber', e.target.value)}
+                          onChange={(e) => {
+                            // Only allow numbers
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            handleMultipleInputChange(index, 'apartmentNumber', value);
+                          }}
                           placeholder="Númer íbúðar"
+                          type="text"
+                          pattern="[0-9]*"
+                          inputMode="numeric"
                           required
                           spellCheck="false"
+                          className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                       

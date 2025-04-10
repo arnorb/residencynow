@@ -212,7 +212,7 @@ const ResidentList: React.FC<ResidentListProps> = ({
           </Text>
           <View style={styles.qrCodeContainer}>
             <PDFQRCode value={qrCodeUrl} size={60} />
-            <Text style={styles.qrCodeText}>Breytingar</Text>
+            <Text style={styles.qrCodeText}>Breytingar/Edits</Text>
           </View>
         </View>
       </Page>

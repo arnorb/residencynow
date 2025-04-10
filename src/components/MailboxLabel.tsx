@@ -18,8 +18,8 @@ Font.register({
 // Create styles for the mailbox label
 const styles = StyleSheet.create({
   page: {
-    width: '7cm',
-    height: '5cm',
+    width: '9cm',
+    height: '3.8cm',
     padding: '0.5cm',
     backgroundColor: '#ffffff',
     fontFamily: 'Fira Sans',
@@ -35,12 +35,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: '0.3cm',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   residentName: {
     fontSize: 11,
     marginBottom: '0.1cm',
-    textAlign: 'center',
+    textAlign: 'left',
   }
 });
 
@@ -56,7 +56,7 @@ const MailboxLabel: React.FC<MailboxLabelProps> = ({ apartmentNumber, residents 
 
   return (
     <Document>
-      <Page size={[198, 141]} style={styles.page}>
+      <Page size={[255.12, 107.72]} style={styles.page}>
         <View style={styles.label}>
           <Text style={styles.apartmentNumber}>{apartmentNumber}</Text>
           {sortedResidents.map((resident, index) => (
