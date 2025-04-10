@@ -109,7 +109,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   
   // Form state for editing residents
   const [isEditing, setIsEditing] = useState(false);
-  const [currentResident, setCurrentResident] = useState<Partial<Resident>>({ exclude_a4: false });
+  const [currentResident, setCurrentResident] = useState<Partial<Resident>>({
+    name: '',
+    apartmentNumber: '',
+    exclude_a4: false,
+    priority: undefined
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // State for multiple residents dialog
@@ -143,7 +148,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, checked } = e.target;
     
     if (name === 'priority') {
       // Handle priority as a number or undefined
@@ -151,7 +156,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
         ...currentResident,
         [name]: value === '' ? undefined : parseInt(value)
       });
+    } else if (name === 'exclude_a4') {
+      // Handle checkbox
+      setCurrentResident({
+        ...currentResident,
+        [name]: checked
+      });
     } else {
+      // Handle text inputs
       setCurrentResident({
         ...currentResident,
         [name]: value
@@ -473,10 +485,13 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="flex flex-col p-0 max-h-full" aria-describedby="resident-form-description">
+        <DialogContent 
+          className="flex flex-col p-0 max-h-full" 
+          aria-describedby="edit-resident-description"
+        >
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
             <DialogTitle>Breyta íbúa</DialogTitle>
-            <DialogDescription id="resident-form-description">
+            <DialogDescription id="edit-resident-description">
               Uppfærðu upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
@@ -505,10 +520,21 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                       id="apartmentNumber"
                       name="apartmentNumber"
                       value={currentResident.apartmentNumber || ''}
-                      onChange={handleInputChange}
+                      onChange={(e) => {
+                        // Only allow numbers
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        setCurrentResident({
+                          ...currentResident,
+                          apartmentNumber: value
+                        });
+                      }}
                       placeholder="Númer íbúðar"
+                      type="text"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
                       required
                       spellCheck="false"
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                   
@@ -567,11 +593,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       
       {/* Multiple Residents Dialog */}
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
-        <DialogContent className="flex flex-col p-0 sm:max-w-2xl h-[100vh] sm:h-[80vh]" aria-describedby="multiple-residents-form-description">
+        <DialogContent 
+          className="flex flex-col p-0 sm:max-w-2xl h-[100vh] sm:h-[80vh]"
+          aria-describedby="add-residents-description"
+        >
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
             <DialogTitle>Bæta við íbúum</DialogTitle>
-            <DialogDescription id="multiple-residents-form-description">
-              Settu inn upplýsingar um íbúa
+            <DialogDescription id="add-residents-description">
+              Settu inn upplýsingar um íbúa. Fyrsta nafn í hverri íbúð fær hæstan forgang.
             </DialogDescription>
           </DialogHeader>
           
@@ -604,11 +633,18 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
                         <label htmlFor={`apartmentNumber-${index}`} className="text-sm font-medium">Íbúð</label>
                         <Input
                           id={`apartmentNumber-${index}`}
-                          value={apartment.apartmentNumber}
+                          value={apartment.apartmentNumber || ''}
                           onChange={(e) => {
-                            // Only allow numbers
                             const value = e.target.value.replace(/[^0-9]/g, '');
-                            handleMultipleInputChange(index, 'apartmentNumber', value);
+                            const updatedApartments = [...multipleResidentsInput.apartments];
+                            updatedApartments[index] = {
+                              ...updatedApartments[index],
+                              apartmentNumber: value
+                            };
+                            setMultipleResidentsInput({
+                              ...multipleResidentsInput,
+                              apartments: updatedApartments
+                            });
                           }}
                           placeholder="Númer íbúðar"
                           type="text"
