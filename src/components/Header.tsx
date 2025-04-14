@@ -13,12 +13,12 @@ export function Header() {
 
   return (
     <header className="w-full border-b border-[#DADADA]">
-      <div className="w-full flex justify-between items-center p-5">
+      <div className="w-full flex justify-between items-center py-2 pl-4 pr-2 md:py-4 md:pl-8 md:pr-6">
         <div className="flex items-center gap-2">
           <img 
             src="/habitera-logo.svg" 
             alt="Habitera" 
-            className="h-6"
+            className="h-4"
           />
         </div>
 

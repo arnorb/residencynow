@@ -99,7 +99,7 @@ const PlusIcon = ({ className = "h-4 w-4" }: { className?: string }) => (
 
 const ResidentManager: React.FC<ResidentManagerProps> = ({ 
   buildingId, 
-  buildingName,
+  // buildingName,
   onResidentsChange 
 }) => {
   const [residents, setResidents] = useState<Resident[]>([]);

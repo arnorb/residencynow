@@ -321,7 +321,7 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle>{title}</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-center sm:justify-start">
               <PDFDownloadLink
                 document={
                   <AllMailboxLabels

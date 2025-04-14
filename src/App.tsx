@@ -128,24 +128,18 @@ function App() {
 
   // Fetch buildings on component mount
   useEffect(() => {
-    fetchBuildingsList();
-  }, [fetchBuildingsList]);
+    // Only fetch buildings if user is authenticated
+    if (isAuthenticated && user) {
+      fetchBuildingsList();
+    }
+  }, [fetchBuildingsList, isAuthenticated, user]);
 
   // Effect to fetch residents when building changes
   useEffect(() => {
-    if (selectedBuildingId && hasBuildingSelection) {
+    if (selectedBuildingId && hasBuildingSelection && isAuthenticated) {
       fetchData()
     }
-  }, [selectedBuildingId, hasBuildingSelection, fetchData])
-
-  // Add a useEffect to re-fetch data when authentication state changes
-  useEffect(() => {
-    // When a user becomes authenticated, refetch the buildings data
-    if (isAuthenticated && user) {
-      // console.log('User authenticated, fetching buildings data');
-      fetchBuildingsList();
-    }
-  }, [isAuthenticated, user, fetchBuildingsList]);
+  }, [selectedBuildingId, hasBuildingSelection, fetchData, isAuthenticated])
 
   // Get the selected building name
   const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
@@ -179,7 +173,13 @@ function App() {
         
         <main className="flex-1 container mx-auto py-8 px-8">
           <div className="max-w-4xl mx-auto">
-            {isBuildingsLoading ? (
+            {!isAuthenticated ? (
+              // Show authentication loading state
+              <div className="animate-pulse mb-8">
+                <div className="h-12 bg-gray-200 rounded w-64"></div>
+                <div className="mt-4 text-sm text-gray-500">Auðkenning í gangi...</div>
+              </div>
+            ) : isBuildingsLoading ? (
               // Show a placeholder while buildings are loading
               <div className="animate-pulse mb-8">
                 <div className="h-12 bg-gray-200 rounded w-64"></div>

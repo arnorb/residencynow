@@ -126,8 +126,7 @@ export async function fetchBuildings(): Promise<Building[]> {
     // First check if we have an authenticated session
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      console.warn('No authenticated session found when fetching buildings');
-      // You could throw an error here, but we'll let it attempt the fetch anyway
+      throw new Error('No authenticated session found when fetching buildings');
     }
     
     const { data, error } = await supabase
@@ -136,14 +135,12 @@ export async function fetchBuildings(): Promise<Building[]> {
       .order('id');
     
     if (error) {
-     // console.error('Error fetching buildings:', error);
       if (error.code === 'PGRST301' || error.message.includes('JWT')) {
-        console.error('Authentication error when fetching buildings - session may be invalid');
+        throw new Error('Authentication error when fetching buildings - session may be invalid');
       }
       throw error;
     }
     
-    // console.log(`Successfully fetched ${data?.length || 0} buildings`);
     return data || [];
   } catch (error) {
     console.error('Error fetching buildings:', error);
@@ -157,8 +154,7 @@ export async function fetchResidents(buildingId: number): Promise<Resident[]> {
     // First check if we have an authenticated session
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
-      console.warn('No authenticated session found when fetching residents');
-      // You could throw an error here, but we'll let it attempt the fetch anyway
+      throw new Error('No authenticated session found when fetching residents');
     }
     
     const { data, error } = await supabase
@@ -168,15 +164,12 @@ export async function fetchResidents(buildingId: number): Promise<Resident[]> {
       .order('name');
     
     if (error) {
-      console.error('Error fetching residents:', error);
       if (error.code === 'PGRST301' || error.message.includes('JWT')) {
-        console.error('Authentication error when fetching residents - session may be invalid');
+        throw new Error('Authentication error when fetching residents - session may be invalid');
       }
       throw error;
     }
     
-    // console.log(`Successfully fetched ${data?.length || 0} residents for building ${buildingId}`);
-    // Map from database format to application format
     return (data || []).map(mapFromDbResident);
   } catch (error) {
     console.error('Error fetching residents:', error);

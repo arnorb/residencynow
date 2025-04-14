@@ -35,14 +35,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         
         // Get current session and user
-        // const { data: { session } } = await supabase.auth.getSession();
-        const currentUser = await getCurrentUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user || null;
         
         setUser(currentUser);
-        // console.log("Current auth state:", { currentUser, session });
       } catch (err) {
         console.error('Error checking authentication:', err);
         setError('Error checking authentication status');
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -52,9 +52,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_: AuthChangeEvent, session: Session | null) => {
-        // console.log("Auth state changed:", event, session?.user);
+      async (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user ?? null);
+        setLoading(false);
       }
     );
     
