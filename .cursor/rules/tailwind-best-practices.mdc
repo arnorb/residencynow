@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx,*.js,*.jsx,*.css
+alwaysApply: false
+---
+- Use utility-first approach for styling
+- Create custom components with `@apply`
+- Utilize Tailwind's responsive utilities
+- Keep your `tailwind.config.js` organized and version-controlled

@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+- Use Radix primitives for custom component development
+- Follow Radix's accessibility guidelines
+- Utilize Radix's state management hooks
+- Combine Radix components with your styling solution

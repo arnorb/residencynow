@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+- Use Supabase client for authentication and database operations
+- Implement proper error handling for Supabase calls
+- Utilize Supabase's real-time capabilities
+- Secure your Supabase keys and use environment variables
+- Use Supabase's MCP (Multi-Channel Publishing) for real-time data synchronization and careful database modification (do not delete rows or columns except for express authorization)

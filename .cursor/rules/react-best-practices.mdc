@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts,*.tsx,*.js,*.jsx
+alwaysApply: false
+---
+- Use functional components with hooks
+- Implement proper prop type validation
+- Utilize memoization for performance optimization
+- Manage global state with context or external state management libraries

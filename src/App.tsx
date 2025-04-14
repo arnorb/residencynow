@@ -1,13 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs"
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "./components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -24,7 +17,8 @@ import { sampleResidents } from './data/sampleData'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 import { Button } from './components/ui/button'
-import { cn } from '@/lib/utils'
+import { Header } from './components/Header'
+import { BuildingSelector } from './components/BuildingSelector'
 
 function App() {
   const [residents, setResidents] = useState<Resident[]>([])
@@ -39,23 +33,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [hasBuildingSelection, setHasBuildingSelection] = useState(false)
   const [showBuildingModal, setShowBuildingModal] = useState<boolean>(false)
-  const { logout, user, isAuthenticated } = useAuth()
-
-  // Define logout button component
-  const LogoutButton = () => (
-    <div className="absolute right-4 top-4 flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <span className="text-xs sm:text-sm text-gray-600 text-right">
-        {user?.email}
-      </span>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={logout}
-      >
-        Útskrá
-      </Button>
-    </div>
-  );
+  const { user, isAuthenticated } = useAuth()
 
   // Load sample data for testing
   const loadSampleData = useCallback(() => {
@@ -196,179 +174,115 @@ function App() {
   // Render the main UI (whether or not buildings are loaded)
   return (
     <ProtectedRoute>
-      <div className="container mx-auto py-8 relative">
-        <LogoutButton />
+      <div className="min-h-screen flex flex-col">
+        <Header />
         
-        <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Habitera</h1>
-          <p className="text-gray-600">
-            Íbúalisti og póstkassamerki
-          </p>
-        </header>
-
-        <div className="max-w-4xl mx-auto">
-          {isBuildingsLoading ? (
-            // Show a placeholder while buildings are loading
-            <div className="animate-pulse">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-24"></div>
-                </div>
-                <div className="w-[180px] h-10 bg-gray-200 rounded-md"></div>
+        <main className="flex-1 container mx-auto py-8 px-8">
+          <div className="max-w-4xl mx-auto">
+            {isBuildingsLoading ? (
+              // Show a placeholder while buildings are loading
+              <div className="animate-pulse mb-8">
+                <div className="h-12 bg-gray-200 rounded w-64"></div>
               </div>
-              
-              <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
-              <div className="h-64 bg-gray-200 rounded w-full"></div>
-            </div>
-          ) : (
-            // Show actual content once buildings are loaded
-            <>
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold">Íbúalisti</h2>
-                  {selectedBuilding && (
-                    <p className="text-sm text-gray-500">
-                      {selectedBuilding.title}
-                    </p>
-                  )}
-                  {!selectedBuilding && (
-                    <p className="text-sm text-gray-500">
-                      Sýnigögn
-                    </p>
-                  )}
-                </div>
+            ) : (
+              // Show actual content once buildings are loaded
+              <>
+                <BuildingSelector
+                  buildings={buildings}
+                  selectedBuildingId={selectedBuildingId}
+                  onBuildingSelect={(buildingId) => {
+                    // Optimistic UI update - show loading indicator before actual data load
+                    setIsFetchingResidents(true);
+                    
+                    // Clear current residents to avoid showing stale data
+                    setResidents([]);
+                    
+                    // Update the building ID which will trigger the fetchData effect
+                    setSelectedBuildingId(buildingId);
+                  }}
+                  isLoading={isFetchingResidents}
+                  className="mb-8"
+                />
                 
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-col">
-                    <label htmlFor="building-select" className="text-sm text-gray-500 mb-1">
-                      Veldu byggingu
-                    </label>
-                    {buildings.length > 0 ? (
-                      <Select
-                        value={selectedBuildingId.toString()}
-                        onValueChange={(value) => {
-                          const newBuildingId = parseInt(value);
-                          
-                          // Optimistic UI update - show loading indicator before actual data load
-                          setIsFetchingResidents(true);
-                          
-                          // Clear current residents to avoid showing stale data
-                          setResidents([]);
-                          
-                          // Update the building ID which will trigger the fetchData effect
-                          setSelectedBuildingId(newBuildingId);
-                        }}
-                      >
-                        <SelectTrigger 
-                          className={cn(
-                            "w-[180px] relative",
-                            isFetchingResidents && "text-opacity-50 pointer-events-none"
-                          )}
-                          id="building-select"
-                        >
-                          <SelectValue placeholder="Veldu byggingu" />
-                          {isFetchingResidents && (
-                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
-                              <div className="w-4 h-4 border-2 border-t-primary border-gray-200 rounded-full animate-spin" />
-                            </div>
-                          )}
-                        </SelectTrigger>
-                        <SelectContent>
-                          {buildings.map((building) => (
-                            <SelectItem key={building.id} value={building.id.toString()}>
-                              {building.title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <div className="w-[180px] h-10 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
-                        Engar byggingar fundust
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <Tabs defaultValue="manage" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
-                  <TabsTrigger value="manage" className="text-center">
-                    <span className="hidden sm:inline">Breyta gögnum</span>
-                    <span className="sm:hidden">Breyta</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="residents" className="text-center">
-                    <span className="hidden sm:inline">Íbúalisti</span>
-                    <span className="sm:hidden">Íbúar</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="mailboxes" className="text-center">
-                    <span className="hidden sm:inline">Póstkassamerki</span>
-                    <span className="sm:hidden">Merki</span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="manage">
-                  <ResidentManager
-                    buildingId={selectedBuildingId}
-                    buildingName={selectedBuilding?.title || "Sýnigögn"}
-                    onResidentsChange={handleResidentsChange}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="residents">
-                  <PDFViewer 
-                    residents={residents} 
-                    buildingName={selectedBuilding?.title || "Sýnigögn"}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="mailboxes">
-                  <MailboxLabelsViewer
-                    residents={residents}
-                    buildingName={selectedBuilding?.title || "Sýnigögn"}
-                    isLoading={isFetchingResidents}
-                    onResidentsChange={handleResidentsChange}
-                  />
-                </TabsContent>
-              </Tabs>
-            </>
-          )}
-        </div>
-
-        {error && (
-          <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
-            {error}
+                <Tabs defaultValue="manage" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-4 sm:mb-6">
+                    <TabsTrigger value="manage" className="text-center">
+                      <span className="hidden sm:inline">Breyta gögnum</span>
+                      <span className="sm:hidden">Breyta</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="residents" className="text-center">
+                      <span className="hidden sm:inline">Íbúalisti</span>
+                      <span className="sm:hidden">Íbúar</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="mailboxes" className="text-center">
+                      <span className="hidden sm:inline">Póstkassamerki</span>
+                      <span className="sm:hidden">Merki</span>
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="manage">
+                    <ResidentManager
+                      buildingId={selectedBuildingId}
+                      buildingName={selectedBuilding?.title || "Sýnigögn"}
+                      onResidentsChange={handleResidentsChange}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="residents">
+                    <PDFViewer 
+                      residents={residents} 
+                      buildingName={selectedBuilding?.title || "Sýnigögn"}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="mailboxes">
+                    <MailboxLabelsViewer
+                      residents={residents}
+                      buildingName={selectedBuilding?.title || "Sýnigögn"}
+                      isLoading={isFetchingResidents}
+                      onResidentsChange={handleResidentsChange}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
           </div>
-        )}
 
-        {/* Building Selection Modal */}
-        <Dialog open={showBuildingModal} onOpenChange={handleModalOpenChange}>
-          <DialogContent className="sm:max-w-md p-0 [&>button]:hidden">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b">
-              <DialogTitle>Veldu byggingu</DialogTitle>
-              <DialogDescription>
-                Vinsamlegast veldu byggingu til að skoða íbúa og póstkassamerki.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 px-6 py-6 max-h-[50vh] overflow-y-auto pr-6 sm:grid-cols-2">
-              {buildings.map((building) => (
-                <Button
-                  key={building.id}
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                  onClick={() => handleBuildingSelection(building.id)}
-                >
-                  {building.title}
-                </Button>
-              ))}
+          {error && (
+            <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
+              {error}
             </div>
-            <DialogFooter className="px-6 py-4 border-t">
-              <DialogDescription className="text-xs">
-                Þú getur alltaf breytt um byggingu síðar með því að nota fellivalmyndina efst á síðunni.
-              </DialogDescription>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          )}
+
+          {/* Building Selection Modal */}
+          <Dialog open={showBuildingModal} onOpenChange={handleModalOpenChange}>
+            <DialogContent className="sm:max-w-md p-0 [&>button]:hidden">
+              <DialogHeader className="px-6 pt-6 pb-4 border-b">
+                <DialogTitle>Veldu byggingu</DialogTitle>
+                <DialogDescription>
+                  Vinsamlegast veldu byggingu til að skoða íbúa og póstkassamerki.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 px-6 py-6 max-h-[50vh] overflow-y-auto pr-6 sm:grid-cols-2">
+                {buildings.map((building) => (
+                  <Button
+                    key={building.id}
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                    onClick={() => handleBuildingSelection(building.id)}
+                  >
+                    {building.title}
+                  </Button>
+                ))}
+              </div>
+              <DialogFooter className="px-6 py-4 border-t">
+                <DialogDescription className="text-xs">
+                  Þú getur alltaf breytt um byggingu síðar með því að nota fellivalmyndina efst á síðunni.
+                </DialogDescription>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </main>
       </div>
     </ProtectedRoute>
   )

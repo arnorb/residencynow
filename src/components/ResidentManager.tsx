@@ -391,7 +391,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     <Card className="shadow-md">
       <CardHeader className="px-3 sm:px-6 pt-0 sm:pt-4 pb-2">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <CardTitle className="text-xl font-semibold">Íbúar {buildingName && `- ${buildingName}`}</CardTitle>
+          <CardTitle className="text-xl font-semibold">Íbúar</CardTitle>
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <Button 
               onClick={handleAddMultiple} 

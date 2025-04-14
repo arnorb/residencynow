@@ -125,7 +125,8 @@ const MailboxLabelsViewer: React.FC<MailboxLabelsViewerProps> = ({
     `postkassamerki_ibud_${apartmentNumber}${buildingName ? '_' + buildingName.toLowerCase().replace(/\s+/g, '_') : ''}.pdf`;
   
   // Create title for the card
-  const title = buildingName ? buildingName : 'Allar íbúðir';
+  // const title = buildingName ? buildingName : 'Allar íbúðir';
+  const title = 'Allar íbúðir';
   
   // Handle opening the sorting dialog
   const handleOpenSortDialog = (apartmentNumber: string) => {
