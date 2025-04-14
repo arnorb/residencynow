@@ -186,7 +186,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   
   // Reset form
   const resetForm = () => {
-    setCurrentResident({});
+    setCurrentResident({
+      name: '',
+      apartmentNumber: '',
+      exclude_a4: false,
+      priority: undefined
+    });
     setIsEditing(false);
   };
   
@@ -501,16 +506,17 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
               <div className="px-6 py-6">
                 <div className="space-y-4">
                   <div className="grid w-full items-center gap-2">
-                    <label htmlFor="name" className="text-sm font-medium">Nafn</label>
+                    <label htmlFor="name" className="text-sm font-medium">Nafn íbúa</label>
                     <Input
                       id="name"
                       name="name"
                       value={currentResident.name || ''}
                       onChange={handleInputChange}
                       placeholder="Nafn íbúa"
+                      type="text"
                       required
                       spellCheck="true"
-                      lang="is"
+                      className="w-full"
                     />
                   </div>
                   

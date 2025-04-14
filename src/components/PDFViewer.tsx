@@ -4,6 +4,8 @@ import ResidentList from './ResidentList';
 import { Resident } from '../services/supabase';
 import { Button } from "./ui/button";
 
+// Font files will be loaded via fetch API
+
 // Import font files directly to ensure they're bundled
 import FiraSansRegular from '../assets/fonts/FiraSans-Regular.ttf';
 import FiraSansBold from '../assets/fonts/FiraSans-Bold.ttf';
@@ -13,7 +15,7 @@ import FiraSansMedium from '../assets/fonts/FiraSans-Medium.ttf';
 // Preload fonts to ensure they're available
 const preloadFonts = async () => {
   try {
-    // Register fonts here as a fallback in case they weren't registered elsewhere
+    // Register fonts directly - now that we have the Buffer polyfill, this should work
     await Font.register({
       family: 'Fira Sans',
       fonts: [
@@ -173,7 +175,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ residents, buildingName }) => {
         console.warn('Fira Sans font not registered yet');
         setFontLoadingError('Leturgerðir ekki hlaðnar. Vinsamlegast reyndu aftur.');
       } else {
-        console.log('Fira Sans font registered successfully');
+        // console.log('Fira Sans font registered successfully');
         setFontsLoaded(true);
         setFontLoadingError(null);
       }

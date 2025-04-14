@@ -12,7 +12,7 @@ import {
 import PDFViewer from './components/PDFViewer'
 import MailboxLabelsViewer from './components/MailboxLabelsViewer'
 import ResidentManager from './components/ResidentManager'
-import { Resident, Building, fetchResidents, fetchBuildings } from './services/supabase'
+import { Resident, BuildingWithAudit, fetchResidents, fetchBuildingsWithAudit } from './services/supabase'
 import { sampleResidents } from './data/sampleData'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
@@ -22,7 +22,7 @@ import { BuildingSelector } from './components/BuildingSelector'
 
 function App() {
   const [residents, setResidents] = useState<Resident[]>([])
-  const [buildings, setBuildings] = useState<Building[]>([])
+  const [buildings, setBuildings] = useState<BuildingWithAudit[]>([])
   const [selectedBuildingId, setSelectedBuildingId] = useState<number>(() => {
     // Try to get the last selected building from localStorage
     const savedBuildingId = localStorage.getItem('lastSelectedBuilding');
@@ -67,7 +67,7 @@ function App() {
     setError(null)
     
     try {
-      const data = await fetchBuildings()
+      const data = await fetchBuildingsWithAudit()
       
       // Check if we got actual data back (not an empty array)
       if (data && data.length > 0) {

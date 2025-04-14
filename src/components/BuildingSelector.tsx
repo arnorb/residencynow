@@ -5,11 +5,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
-import { Building } from "@/services/supabase"
+import { Building, BuildingWithAudit } from "@/services/supabase"
 import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
 
 interface BuildingSelectorProps {
-  buildings: Building[]
+  buildings: Building[] | BuildingWithAudit[]
   selectedBuildingId: number
   onBuildingSelect: (buildingId: number) => void
   isLoading?: boolean
@@ -24,6 +25,25 @@ export function BuildingSelector({
   className
 }: BuildingSelectorProps) {
   const selectedBuilding = buildings.find(b => b.id === selectedBuildingId)
+
+  // Function to check if a building has audit info
+  const hasAuditInfo = (building: Building): building is BuildingWithAudit => {
+    return 'lastEdit' in building && !!building.lastEdit
+  }
+
+  // Function to format operation type
+  const formatOperation = (operation: string): string => {
+    switch (operation) {
+      case 'INSERT':
+        return 'Added'
+      case 'UPDATE':
+        return 'Updated'
+      case 'DELETE':
+        return 'Deleted'
+      default:
+        return 'Modified'
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -55,8 +75,14 @@ export function BuildingSelector({
           <DropdownMenuItem
             key={building.id}
             onSelect={() => onBuildingSelect(building.id)}
+            className="flex flex-col items-start py-2"
           >
-            {building.title}
+            <span>{building.title}</span>
+            {hasAuditInfo(building) && building.lastEdit && (
+              <span className="text-xs text-muted-foreground mt-1">
+                {formatOperation(building.lastEdit.operation)} {formatDistanceToNow(new Date(building.lastEdit.timestamp))} ago
+              </span>
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

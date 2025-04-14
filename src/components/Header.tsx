@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, UserCircle } from "lucide-react"
 import { useEffect, useState } from "react"
+import logoSvg from "@/assets/habitera-logo.svg"
 
 export function Header() {
   const { logout, user } = useAuth()
@@ -29,7 +30,7 @@ export function Header() {
       <div className="w-full flex justify-between items-center pl-4 pr-2 md:pl-8 md:pr-6">
         <div className="flex items-center gap-2">
           <img 
-            src="/habitera-logo.svg" 
+            src={logoSvg} 
             alt="Habitera" 
             className="h-4"
           />

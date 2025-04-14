@@ -93,6 +93,15 @@ export interface Building {
   title: string;
 }
 
+// Extend Building interface with audit information
+export interface BuildingWithAudit extends Building {
+  lastEdit?: {
+    timestamp: string;
+    operation: string;
+    user_id?: string;
+  }
+}
+
 // Database field mapping (converts between camelCase and snake_case)
 const mapToDbResident = (resident: Omit<Resident, 'id'>) => ({
   name: resident.name,
@@ -144,6 +153,84 @@ export async function fetchBuildings(): Promise<Building[]> {
     return data || [];
   } catch (error) {
     console.error('Error fetching buildings:', error);
+    throw error;
+  }
+}
+
+// Fetch all buildings with audit information
+export async function fetchBuildingsWithAudit(): Promise<BuildingWithAudit[]> {
+  try {
+    // First check if we have an authenticated session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No authenticated session found when fetching buildings');
+    }
+    
+    // Step 1: Get all buildings
+    const { data: buildings, error: buildingsError } = await supabase
+      .from('buildings')
+      .select('*')
+      .order('title');
+    
+    if (buildingsError) {
+      throw buildingsError;
+    }
+    
+    if (!buildings?.length) return [];
+    
+    // Step 2: For each building, get the most recent audit log entry
+    const buildingsWithEdits: BuildingWithAudit[] = await Promise.all(
+      buildings.map(async (building) => {
+        // Query for building edits
+        const { data: buildingEdits } = await supabase
+          .from('audit_logs')
+          .select('*')
+          .eq('table_name', 'buildings')
+          .eq('record_id', building.id)
+          .order('timestamp', { ascending: false })
+          .limit(1);
+          
+        // Query for resident edits associated with this building
+        const { data: residentEdits } = await supabase
+          .from('audit_logs')
+          .select('*')
+          .eq('table_name', 'residents')
+          // Look for residents that belong to this building in either previous or new data
+          .or(`previous_data->>building_id.eq.${building.id},changed_data->>building_id.eq.${building.id}`)
+          .order('timestamp', { ascending: false })
+          .limit(1);
+        
+        // Find the most recent edit between the two
+        const buildingEdit = buildingEdits?.[0];
+        const residentEdit = residentEdits?.[0];
+        
+        let lastEdit = null;
+        
+        if (buildingEdit && residentEdit) {
+          // Compare timestamps to get the most recent
+          lastEdit = new Date(buildingEdit.timestamp) > new Date(residentEdit.timestamp)
+            ? buildingEdit : residentEdit;
+        } else {
+          lastEdit = buildingEdit || residentEdit || null;
+        }
+        
+        // Return building with last edit information
+        return {
+          ...building,
+          lastEdit: lastEdit 
+            ? {
+                timestamp: lastEdit.timestamp,
+                operation: lastEdit.operation,
+                user_id: lastEdit.user_id
+              }
+            : undefined
+        };
+      })
+    );
+    
+    return buildingsWithEdits;
+  } catch (error) {
+    console.error('Error fetching buildings with audit info:', error);
     throw error;
   }
 }
