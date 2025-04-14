@@ -7,7 +7,6 @@ import {
 } from "./ui/dropdown-menu"
 import { Building, BuildingWithAudit } from "@/services/supabase"
 import { cn } from "@/lib/utils"
-import { formatDistanceToNow } from "date-fns"
 
 interface BuildingSelectorProps {
   buildings: Building[] | BuildingWithAudit[]
@@ -35,13 +34,51 @@ export function BuildingSelector({
   const formatOperation = (operation: string): string => {
     switch (operation) {
       case 'INSERT':
-        return 'Added'
+        return 'Bætt við'
       case 'UPDATE':
-        return 'Updated'
+        return 'Uppfært'
       case 'DELETE':
-        return 'Deleted'
+        return 'Eytt'
       default:
-        return 'Modified'
+        return 'Breytt'
+    }
+  }
+  
+  // Custom Icelandic time formatting function
+  const formatTimeInIcelandic = (date: Date): string => {
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    // Calculate time units
+    const seconds = diffInSeconds
+    const minutes = Math.floor(seconds / 60)
+    const hours = Math.floor(minutes / 60)
+    const days = Math.floor(hours / 24)
+    const months = Math.floor(days / 30)
+    const years = Math.floor(days / 365)
+    
+    // In Icelandic, numbers ending in 1 (except 11) use singular form
+    const usesSingular = (num: number): boolean => {
+      return num % 10 === 1 && num % 100 !== 11
+    }
+    
+    // Format with correct Icelandic grammar
+    if (years > 0) {
+      return usesSingular(years) ? `${years} ári` : `${years} árum`
+    } else if (months > 0) {
+      return usesSingular(months) ? `${months} mánuði` : `${months} mánuðum`
+    } else if (days > 0) {
+      if (days === 7) return '1 viku'
+      if (days === 14) return '2 vikum'
+      if (days === 21) return '3 vikum'
+      if (days === 28) return '4 vikum'
+      return usesSingular(days) ? `${days} degi` : `${days} dögum`
+    } else if (hours > 0) {
+      return usesSingular(hours) ? `${hours} klukkutíma` : `${hours} klukkutímum`
+    } else if (minutes > 0) {
+      return usesSingular(minutes) ? `${minutes} mínútu` : `${minutes} mínútum`
+    } else {
+      return usesSingular(seconds) ? `${seconds} sekúndu` : `${seconds} sekúndum`
     }
   }
 
@@ -80,7 +117,7 @@ export function BuildingSelector({
             <span>{building.title}</span>
             {hasAuditInfo(building) && building.lastEdit && (
               <span className="text-xs text-muted-foreground mt-1">
-                {formatOperation(building.lastEdit.operation)} {formatDistanceToNow(new Date(building.lastEdit.timestamp))} ago
+                {formatOperation(building.lastEdit.operation)} fyrir {formatTimeInIcelandic(new Date(building.lastEdit.timestamp))} síðan
               </span>
             )}
           </DropdownMenuItem>
