@@ -7,13 +7,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, UserCircle } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export function Header() {
   const { logout, user } = useAuth()
+  const [isScrolled, setIsScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   return (
-    <header className="w-full border-b border-[#DADADA]">
-      <div className="w-full flex justify-between items-center py-2 pl-4 pr-2 md:py-4 md:pl-8 md:pr-6">
+    <header className={`w-full border-b border-[#DADADA] fixed top-0 left-0 right-0 bg-white z-50 transition-all duration-200 ${
+      isScrolled ? 'py-1 md:py-2' : 'py-2 md:py-4'
+    }`}>
+      <div className="w-full flex justify-between items-center pl-4 pr-2 md:pl-8 md:pr-6">
         <div className="flex items-center gap-2">
           <img 
             src="/habitera-logo.svg" 

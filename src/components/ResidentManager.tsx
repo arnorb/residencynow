@@ -486,12 +486,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       {/* Single Resident Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent 
-          className="flex flex-col p-0 max-h-full" 
-          aria-describedby="edit-resident-description"
+          className="flex flex-col p-0 max-h-full"
+          aria-describedby="single-resident-dialog-description"
         >
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
             <DialogTitle>Breyta íbúa</DialogTitle>
-            <DialogDescription id="edit-resident-description">
+            <DialogDescription id="single-resident-dialog-description">
               Uppfærðu upplýsingar um íbúa
             </DialogDescription>
           </DialogHeader>
@@ -595,12 +595,12 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       <Dialog open={isMultipleDialogOpen} onOpenChange={setIsMultipleDialogOpen}>
         <DialogContent 
           className="flex flex-col p-0 sm:max-w-2xl h-[100vh] sm:h-[80vh]"
-          aria-describedby="add-residents-description"
+          aria-describedby="multiple-residents-dialog-description"
         >
           <DialogHeader className="px-6 pt-6 pb-4 border-b sticky top-0 bg-background z-10 pr-14">
-            <DialogTitle>Bæta við íbúum</DialogTitle>
-            <DialogDescription id="add-residents-description">
-              Settu inn upplýsingar um íbúa. Fyrsta nafn í hverri íbúð fær hæstan forgang.
+            <DialogTitle>Bæta við mörgum íbúum</DialogTitle>
+            <DialogDescription id="multiple-residents-dialog-description">
+              Sláðu inn íbúðarnúmer og nöfn íbúa, eitt nafn í hverja línu
             </DialogDescription>
           </DialogHeader>
           

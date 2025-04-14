@@ -171,7 +171,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         <Header />
         
-        <main className="flex-1 container mx-auto py-8 px-8">
+        <main className="flex-1 container mx-auto py-8 px-8 mt-[72px] md:mt-[88px]">
           <div className="max-w-4xl mx-auto">
             {!isAuthenticated ? (
               // Show authentication loading state
@@ -256,10 +256,10 @@ function App() {
 
           {/* Building Selection Modal */}
           <Dialog open={showBuildingModal} onOpenChange={handleModalOpenChange}>
-            <DialogContent className="sm:max-w-md p-0 [&>button]:hidden">
+            <DialogContent className="sm:max-w-md p-0 [&>button]:hidden" aria-describedby="building-selection-description">
               <DialogHeader className="px-6 pt-6 pb-4 border-b">
                 <DialogTitle>Veldu byggingu</DialogTitle>
-                <DialogDescription>
+                <DialogDescription id="building-selection-description">
                   Vinsamlegast veldu byggingu til að skoða íbúa og póstkassamerki.
                 </DialogDescription>
               </DialogHeader>
