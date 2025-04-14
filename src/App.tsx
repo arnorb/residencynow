@@ -171,7 +171,7 @@ function App() {
       <div className="min-h-screen flex flex-col">
         <Header />
         
-        <main className="flex-1 container mx-auto py-8 px-8 mt-[72px] md:mt-[88px]">
+        <main className="flex-1 container mx-auto py-8 px-4 mt-[72px] md:mt-[88px]">
           <div className="max-w-4xl mx-auto">
             {!isAuthenticated ? (
               // Show authentication loading state

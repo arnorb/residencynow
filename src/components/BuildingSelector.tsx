@@ -92,7 +92,7 @@ export function BuildingSelector({
         )}
         disabled={isLoading}
       >
-        <h1 className="text-4xl font-semibold">
+        <h1 className="text-3xl md:text-4xl font-semibold">
           {selectedBuilding?.title || "Veldu byggingu"}
         </h1>
         <div className="relative w-6 h-6">
