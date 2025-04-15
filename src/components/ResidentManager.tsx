@@ -206,7 +206,14 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!currentResident.name || !currentResident.apartmentNumber) {
+    // Trim values before validation and submission
+    const trimmedResident = {
+      ...currentResident,
+      name: currentResident.name?.trim() || '',
+      apartmentNumber: currentResident.apartmentNumber?.trim() || ''
+    };
+    
+    if (!trimmedResident.name || !trimmedResident.apartmentNumber) {
       setError('Nafn og íbúðarnúmer eru nauðsynleg');
       return;
     }
@@ -215,10 +222,10 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     setError(null);
     
     try {
-      if (isEditing && currentResident.id) {
+      if (isEditing && trimmedResident.id) {
         // Update existing resident
-        const { name, apartmentNumber, priority, exclude_a4 } = currentResident;
-        await updateResident(currentResident.id, { name, apartmentNumber, priority, exclude_a4 });
+        const { name, apartmentNumber, priority, exclude_a4 } = trimmedResident;
+        await updateResident(trimmedResident.id, { name, apartmentNumber, priority, exclude_a4 });
         
         // Reload residents and reset form
         await loadResidents();
@@ -267,9 +274,15 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
   const handleMultipleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Create a copy with trimmed values for validation
+    const trimmedApartments = multipleResidentsInput.apartments.map(apartment => ({
+      apartmentNumber: apartment.apartmentNumber.trim(),
+      names: apartment.names.trim()
+    }));
+    
     // Validate all apartments have required fields
-    const hasInvalidApartments = multipleResidentsInput.apartments.some(
-      apartment => !apartment.apartmentNumber || !apartment.names.trim()
+    const hasInvalidApartments = trimmedApartments.some(
+      apartment => !apartment.apartmentNumber || !apartment.names
     );
     
     if (hasInvalidApartments) {
@@ -282,7 +295,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     
     try {
       // Create residents for all apartments
-      const allResidents = multipleResidentsInput.apartments.flatMap((apartment) => {
+      const allResidents = trimmedApartments.flatMap((apartment) => {
         const namesList = apartment.names
           .split('\n')
           .map(name => name.trim())
