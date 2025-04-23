@@ -193,6 +193,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
       priority: undefined
     });
     setIsEditing(false);
+    setError(null);
   };
   
   // Reset multiple residents form
@@ -200,6 +201,7 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     setMultipleResidentsInput({
       apartments: [{ apartmentNumber: '', names: '' }]
     });
+    setError(null);
   };
   
   // Handle form submission
@@ -215,6 +217,29 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     
     if (!trimmedResident.name || !trimmedResident.apartmentNumber) {
       setError('Nafn og íbúðarnúmer eru nauðsynleg');
+      return;
+    }
+
+    // Check for existing residents with the same name in the same apartment
+    const existingResidentWithSameName = residents.find(
+      r => r.apartmentNumber === trimmedResident.apartmentNumber && 
+          r.name.toLowerCase() === trimmedResident.name.toLowerCase() &&
+          r.id !== trimmedResident.id
+    );
+
+    if (existingResidentWithSameName) {
+      setError(`${trimmedResident.name} er þegar skráð/ur í íbúð ${trimmedResident.apartmentNumber}`);
+      return;
+    }
+
+    // Check for existing residents in the same apartment
+    const existingResidents = residents.filter(
+      r => r.apartmentNumber === trimmedResident.apartmentNumber && r.id !== trimmedResident.id
+    );
+
+    if (existingResidents.length > 0) {
+      const existingNames = existingResidents.map(r => r.name).join(', ');
+      setError(`Það eru þegar íbúar skráðir í íbúð ${trimmedResident.apartmentNumber}: ${existingNames}`);
       return;
     }
     
@@ -287,6 +312,72 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     
     if (hasInvalidApartments) {
       setError('Íbúðarnúmer og að minnsta kosti eitt nafn eru nauðsynleg fyrir hverja íbúð');
+      return;
+    }
+
+    // Check for duplicate apartment numbers within the form
+    const apartmentNumbers = trimmedApartments.map(a => a.apartmentNumber);
+    const hasDuplicateApartments = apartmentNumbers.some(
+      (num, idx) => apartmentNumbers.indexOf(num) !== idx
+    );
+
+    if (hasDuplicateApartments) {
+      setError('Þú hefur slegið inn sama íbúðarnúmer oftar en einu sinni');
+      return;
+    }
+
+    // Check for duplicate names within each apartment in the form
+    for (const apartment of trimmedApartments) {
+      const names = apartment.names
+        .split('\n')
+        .map(name => name.trim())
+        .filter(name => name.length > 0)
+        .map(name => name.toLowerCase());
+
+      const duplicateNames = names.filter((name, index) => names.indexOf(name) !== index);
+      if (duplicateNames.length > 0) {
+        setError(`Sama nafn kemur fyrir oftar en einu sinni í íbúð ${apartment.apartmentNumber}: ${duplicateNames[0]}`);
+        return;
+      }
+    }
+
+    // Check for existing residents in the same apartments
+    const existingConflicts = await Promise.all(trimmedApartments.map(async apartment => {
+      const existingResidents = residents.filter(r => r.apartmentNumber === apartment.apartmentNumber);
+      const newNames = apartment.names
+        .split('\n')
+        .map(name => name.trim())
+        .filter(name => name.length > 0)
+        .map(name => name.toLowerCase());
+
+      const nameConflicts = existingResidents.filter(resident => 
+        newNames.includes(resident.name.toLowerCase())
+      );
+
+      return {
+        apartmentNumber: apartment.apartmentNumber,
+        existingResidents,
+        nameConflicts
+      };
+    }));
+
+    // Check for name conflicts first
+    const nameConflicts = existingConflicts.filter(conflict => conflict.nameConflicts.length > 0);
+    if (nameConflicts.length > 0) {
+      const conflictMessages = nameConflicts.map(conflict => 
+        `Íbúð ${conflict.apartmentNumber}: ${conflict.nameConflicts.map(r => r.name).join(', ')}`
+      );
+      setError(`Eftirfarandi nöfn eru þegar skráð í íbúðirnar:\n${conflictMessages.join('\n')}`);
+      return;
+    }
+
+    // Then check for apartment conflicts
+    const apartmentConflicts = existingConflicts.filter(conflict => conflict.existingResidents.length > 0);
+    if (apartmentConflicts.length > 0) {
+      const conflictMessages = apartmentConflicts.map(conflict => 
+        `Íbúð ${conflict.apartmentNumber}: ${conflict.existingResidents.map(r => r.name).join(', ')}`
+      );
+      setError(`Það eru þegar íbúar skráðir í eftirfarandi íbúðir:\n${conflictMessages.join('\n')}`);
       return;
     }
     
@@ -405,6 +496,13 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
     </Card>
   );
   
+  // Clear error when dialogs are closed
+  useEffect(() => {
+    if (!isDialogOpen && !isMultipleDialogOpen) {
+      setError(null);
+    }
+  }, [isDialogOpen, isMultipleDialogOpen]);
+  
   return (
     <Card className="shadow-md">
       <CardHeader className="px-3 sm:px-6 pt-0 sm:pt-4 pb-2">
@@ -517,6 +615,11 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
           <div className="flex-1 overflow-y-auto">
             <form onSubmit={handleSubmit} className="flex flex-col h-full">
               <div className="px-6 py-6">
+                {error && (
+                  <div className="mb-4 p-3 text-sm bg-red-50 text-red-700 rounded-md">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-4">
                   <div className="grid w-full items-center gap-2">
                     <label htmlFor="name" className="text-sm font-medium">Nafn íbúa</label>
@@ -626,6 +729,11 @@ const ResidentManager: React.FC<ResidentManagerProps> = ({
           <div className="flex-1 overflow-y-auto">
             <form onSubmit={handleMultipleSubmit} className="flex flex-col h-full">
               <div className="px-6 py-6">
+                {error && (
+                  <div className="mb-4 p-3 text-sm bg-red-50 text-red-700 rounded-md whitespace-pre-line">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-6">
                   {multipleResidentsInput.apartments.map((apartment, index) => (
                     <div 
