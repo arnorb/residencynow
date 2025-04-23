@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import { User, Session, AuthChangeEvent, AuthError } from '@supabase/supabase-js';
 import { signOut, supabase } from '../services/supabase';
 
 // Define the context shape
@@ -28,6 +28,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Logout function
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await signOut();
+      setUser(null);
+    } catch (err: unknown) {
+      console.error('Logout error:', err);
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to logout');
+      } else {
+        setError('Failed to logout');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle session expiration or auth errors
+  const handleAuthError = async (error: Error | AuthError) => {
+    if (
+      error?.message?.includes('JWT') || 
+      error?.message?.includes('session') || 
+      error?.message?.includes('token') ||
+      (error as AuthError)?.code === 'PGRST301'
+    ) {
+      console.warn('Session expired or invalid, logging out...');
+      await logout();
+      setError('Innskráning er útrunnin, vinsamlegast skráðu þig inn aftur.');
+    }
+  };
+  
   // Check for existing session on component mount
   useEffect(() => {
     const checkUser = async () => {
@@ -35,14 +67,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         
         // Get current session and user
-        const { data: { session } } = await supabase.auth.getSession();
-        const currentUser = session?.user || null;
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
+        if (sessionError) {
+          await handleAuthError(sessionError);
+          return;
+        }
+        
+        const currentUser = session?.user || null;
         setUser(currentUser);
       } catch (err) {
         console.error('Error checking authentication:', err);
-        setError('Error checking authentication status');
-        setUser(null);
+        if (err instanceof Error) {
+          await handleAuthError(err);
+        }
       } finally {
         setLoading(false);
       }
@@ -52,8 +90,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_: AuthChangeEvent, session: Session | null) => {
-        setUser(session?.user ?? null);
+      async (event: AuthChangeEvent, session: Session | null) => {
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+        } else if (session?.user) {
+          setUser(session.user);
+        }
         setLoading(false);
       }
     );
@@ -85,7 +127,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Set the user explicitly from the response
       setUser(data.user);
-      // console.log("Successfully logged in as:", data.user.email);
       
       // Force a session refresh to ensure we have the latest state
       await supabase.auth.refreshSession();
@@ -93,33 +134,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return data.user;
     } catch (err: unknown) {
       console.error('Login error:', err);
-      // Type guard for error with message property
       if (err instanceof Error) {
         setError(err.message || 'Failed to login');
       } else {
         setError('Failed to login');
       }
       return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Logout function
-  const logout = async () => {
-    try {
-      setLoading(true);
-      await signOut();
-      setUser(null);
-      // console.log("Successfully logged out");
-    } catch (err: unknown) {
-      console.error('Logout error:', err);
-      // Type guard for error with message property
-      if (err instanceof Error) {
-        setError(err.message || 'Failed to logout');
-      } else {
-        setError('Failed to logout');
-      }
     } finally {
       setLoading(false);
     }
