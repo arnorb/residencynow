@@ -11,6 +11,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    cors: {
+      origin: [
+        'http://localhost:5173',  // Vite dev server
+        'http://localhost:3000',  // Alternative local dev
+        'https://arnarhlid2.habitera.is',  // Production URL
+        process.env.VITE_SUPABASE_URL || '',  // Supabase project URL
+      ],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Client-Info'],
+    },
+  },
   build: {
     assetsInlineLimit: 0, // Disable inlining assets to ensure fonts are properly bundled
     rollupOptions: {

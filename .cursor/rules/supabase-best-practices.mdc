@@ -8,3 +8,4 @@ alwaysApply: false
 - Utilize Supabase's real-time capabilities
 - Secure your Supabase keys and use environment variables
 - Use Supabase's MCP (Multi-Channel Publishing) for real-time data synchronization and careful database modification (do not delete rows or columns except for express authorization)
+- project name is residency-now with ID kobhvsuldpctkjnazqli
