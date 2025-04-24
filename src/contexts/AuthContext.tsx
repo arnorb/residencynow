@@ -7,6 +7,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
+  session: Session | null;
+  sessionExpiry: Date | null;
   login: (email: string, password: string) => Promise<User | null>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -17,6 +19,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   error: null,
+  session: null,
+  sessionExpiry: null,
   login: async () => null,
   logout: async () => {},
   isAuthenticated: false,
@@ -25,8 +29,41 @@ const AuthContext = createContext<AuthContextType>({
 // Create a provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Session monitoring function
+  const monitorSession = (currentSession: Session | null) => {
+    if (currentSession) {
+      const expiryTime = new Date(currentSession.expires_at! * 1000);
+      setSessionExpiry(expiryTime);
+
+      // Set up auto-refresh 5 minutes before expiry
+      const timeUntilExpiry = expiryTime.getTime() - Date.now();
+      const refreshBuffer = 5 * 60 * 1000; // 5 minutes
+      
+      if (timeUntilExpiry > refreshBuffer) {
+        const refreshTimeout = setTimeout(async () => {
+          try {
+            const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) throw refreshError;
+            if (refreshedSession) {
+              setSession(refreshedSession);
+              setUser(refreshedSession.user);
+              monitorSession(refreshedSession);
+            }
+          } catch (err) {
+            console.error('Session refresh failed:', err);
+            await handleAuthError(err as Error);
+          }
+        }, timeUntilExpiry - refreshBuffer);
+
+        return () => clearTimeout(refreshTimeout);
+      }
+    }
+  };
   
   // Logout function
   const logout = async () => {
@@ -34,6 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       await signOut();
       setUser(null);
+      setSession(null);
+      setSessionExpiry(null);
     } catch (err: unknown) {
       console.error('Logout error:', err);
       if (err instanceof Error) {
@@ -54,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       error?.message?.includes('token') ||
       (error as AuthError)?.code === 'PGRST301'
     ) {
-      console.warn('Session expired or invalid, logging out...');
+      console.warn('Session expired or invalid, logging out...', error);
       await logout();
       setError('Innskráning er útrunnin, vinsamlegast skráðu þig inn aftur.');
     }
@@ -67,15 +106,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(true);
         
         // Get current session and user
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           await handleAuthError(sessionError);
           return;
         }
         
-        const currentUser = session?.user || null;
-        setUser(currentUser);
+        if (currentSession) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+          monitorSession(currentSession);
+        }
       } catch (err) {
         console.error('Error checking authentication:', err);
         if (err instanceof Error) {
@@ -90,11 +132,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
+      async (event: AuthChangeEvent, newSession: Session | null) => {
+        console.log('Auth state changed:', event, newSession?.user?.email);
+        
         if (event === 'SIGNED_OUT') {
           setUser(null);
-        } else if (session?.user) {
-          setUser(session.user);
+          setSession(null);
+          setSessionExpiry(null);
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (newSession) {
+            setSession(newSession);
+            setUser(newSession.user);
+            monitorSession(newSession);
+          }
         }
         setLoading(false);
       }
@@ -125,11 +175,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Failed to sign in - no user returned');
       }
       
-      // Set the user explicitly from the response
+      // Set the session and user from the response
+      setSession(data.session);
       setUser(data.user);
       
-      // Force a session refresh to ensure we have the latest state
-      await supabase.auth.refreshSession();
+      // Start monitoring the new session
+      if (data.session) {
+        monitorSession(data.session);
+      }
       
       return data.user;
     } catch (err: unknown) {
@@ -149,6 +202,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     loading,
     error,
+    session,
+    sessionExpiry,
     login,
     logout,
     isAuthenticated: !!user,
